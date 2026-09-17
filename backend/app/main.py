@@ -33,3 +33,8 @@ def recommendation():
 def offers(): return [{'offer_type':'discount','data_source':'historical product price/quantity; simulated only'}]
 @app.get('/network/intelligence')
 def network(): return rows('select location,count(*) transactions,round(sum(total_amount),2) revenue from transactions group by location order by revenue desc limit 10')
+
+@app.get('/n8n/health')
+def n8n_health(): return {'status':'ok','orchestration':'n8n-ready','mode':'mock'}
+@app.post('/mock-paytm/action')
+def mock_paytm_action(action: dict): return {'mode':'mock','status':'accepted','action':action}

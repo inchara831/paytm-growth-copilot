@@ -1,0 +1,340 @@
+{
+  "name": "Paytm Merchant Growth Copilot Orchestration",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "base-url",
+              "name": "baseUrl",
+              "value": "http://localhost:8000",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "config",
+      "name": "Configure FastAPI URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$json.baseUrl + '/health'}}",
+        "options": {}
+      },
+      "id": "health",
+      "name": "FastAPI Health",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configure FastAPI URL').item.json.baseUrl + '/analytics/overview'}}",
+        "options": {}
+      },
+      "id": "overview",
+      "name": "Merchant Overview",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configure FastAPI URL').item.json.baseUrl + '/analytics/hourly'}}",
+        "options": {}
+      },
+      "id": "hourly",
+      "name": "Hourly Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configure FastAPI URL').item.json.baseUrl + '/analytics/products'}}",
+        "options": {}
+      },
+      "id": "products",
+      "name": "Product Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configure FastAPI URL').item.json.baseUrl + '/opportunities'}}",
+        "options": {}
+      },
+      "id": "opportunities",
+      "name": "Opportunities",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Configure FastAPI URL').item.json.baseUrl + '/ai/recommendation'}}",
+        "options": {}
+      },
+      "id": "recommendation",
+      "name": "AI Recommendation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configure FastAPI URL').item.json.baseUrl + '/profitguard/simulate?product_id=' + $('Product Analytics').item.json.product_id + '&discount_pct=10'}}",
+        "options": {}
+      },
+      "id": "profitguard",
+      "name": "ProfitGuard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "action",
+              "name": "action",
+              "value": "={{ { recommendation: $('AI Recommendation').item.json.recommendation, profitguard: $json, opportunity: $('Opportunities').item.json } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare",
+      "name": "Prepare Recommended Action",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configure FastAPI URL').item.json.baseUrl + '/mock-paytm/action'}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "mock-paytm",
+      "name": "Mock Paytm Action",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "result",
+              "name": "result",
+              "value": "={{ { mode: $json.mode, status: $json.status, action: $json.action } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "final",
+      "name": "Final Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2660,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Configure FastAPI URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure FastAPI URL": {
+      "main": [
+        [
+          {
+            "node": "FastAPI Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FastAPI Health": {
+      "main": [
+        [
+          {
+            "node": "Merchant Overview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merchant Overview": {
+      "main": [
+        [
+          {
+            "node": "Hourly Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hourly Analytics": {
+      "main": [
+        [
+          {
+            "node": "Product Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product Analytics": {
+      "main": [
+        [
+          {
+            "node": "Opportunities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Opportunities": {
+      "main": [
+        [
+          {
+            "node": "AI Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Recommendation": {
+      "main": [
+        [
+          {
+            "node": "ProfitGuard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProfitGuard": {
+      "main": [
+        [
+          {
+            "node": "Prepare Recommended Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Recommended Action": {
+      "main": [
+        [
+          {
+            "node": "Mock Paytm Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock Paytm Action": {
+      "main": [
+        [
+          {
+            "node": "Final Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
