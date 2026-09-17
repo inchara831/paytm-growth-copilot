@@ -1,0 +1,15 @@
+import json
+from pathlib import Path
+import pandas as pd
+ROOT=Path(__file__).resolve().parents[1]; RAW=ROOT/'data/raw'; OUT=ROOT/'data/processed'
+def main():
+ OUT.mkdir(parents=True,exist_ok=True); files=[*RAW.glob('*.csv'),*RAW.glob('*.xlsx'),*RAW.glob('*.xls')]
+ if not files: raise FileNotFoundError('No raw source; run run_pipeline.py.')
+ path=next(f for f in files if f.name!='source.zip'); raw=pd.read_excel(path) if path.suffix.lower() in {'.xlsx','.xls'} else pd.read_csv(path,encoding='latin1'); raw.columns=[str(c).strip() for c in raw.columns]
+ a={'Invoice':'invoice','InvoiceNo':'invoice','StockCode':'product_id','Description':'product_name','Quantity':'quantity','InvoiceDate':'timestamp','Price':'selling_price','UnitPrice':'selling_price','Customer ID':'customer_id','CustomerID':'customer_id','Country':'location'}; d=raw.rename(columns={k:v for k,v in a.items() if k in raw}).copy(); req={'invoice','product_id','product_name','quantity','timestamp','selling_price','customer_id','location'}
+ if miss:=req-set(d): raise ValueError(f'Unexpected source schema: {miss}')
+ before=len(d); d['timestamp']=pd.to_datetime(d.timestamp,errors='coerce'); d['quantity']=pd.to_numeric(d.quantity,errors='coerce'); d['selling_price']=pd.to_numeric(d.selling_price,errors='coerce'); d=d.drop_duplicates().dropna(subset=req).query('quantity > 0 and selling_price > 0'); d=d[~d.invoice.astype(str).str.upper().str.startswith('C')].copy()
+ d['merchant_id']='M001'; d['customer_id']='C'+d.customer_id.astype(int).astype(str); d['product_id']=d.product_id.astype(str).str.strip(); d['product_name']=d.product_name.astype(str).str.strip(); d['transaction_date']=d.timestamp.dt.date; d['transaction_time']=d.timestamp.dt.time; d['category']='Uncategorized (not supplied by source)'; d['cost_price']=(d.selling_price*(.68+d.product_id.map(lambda x:(sum(map(ord,x))%9)/100))).round(2); d['discount']=0.; d['total_amount']=(d.quantity*d.selling_price).round(2); d['payment_method']='Unknown (not supplied by source)'; d['transaction_id']=[f'{x}-{i}' for i,x in enumerate(d.invoice.astype(str),1)]
+ cols='transaction_id merchant_id customer_id transaction_date transaction_time product_id product_name category quantity selling_price cost_price discount total_amount payment_method location'.split(); tx=d[cols]; tx.to_csv(OUT/'transactions.csv',index=False); tx[['product_id','product_name','category','selling_price','cost_price']].drop_duplicates('product_id').to_csv(OUT/'products.csv',index=False); tx[['merchant_id']].drop_duplicates().assign(merchant_name='Demo Merchant (generated; source has no merchant)').to_csv(OUT/'merchants.csv',index=False); tx[['customer_id','location']].drop_duplicates('customer_id').to_csv(OUT/'customers.csv',index=False)
+ report={'source_file':path.name,'raw_rows':before,'valid_sales_rows':len(tx),'removed_rows':before-len(tx),'original_columns':list(raw.columns),'generated_fields':['merchant_id','category','cost_price','discount','payment_method','transaction_id']}; (OUT/'data_quality_report.json').write_text(json.dumps(report,indent=2)); print(json.dumps(report,indent=2))
+if __name__=='__main__': main()

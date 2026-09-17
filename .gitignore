@@ -1,0 +1,8 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+backend/data/raw/*
+!backend/data/raw/.gitkeep
+backend/data/processed/*
+!backend/data/processed/.gitkeep
+backend/data/*.db
