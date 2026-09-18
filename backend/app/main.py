@@ -1,11 +1,18 @@
-from fastapi import FastAPI, HTTPException
+﻿from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
-from .database import engine
+from typing import Dict, List, Any, Optional
+
+from backend.app.copilot import CopilotEngine
+from backend.app.ml import BasketInferenceEngine
+from backend.app.database import query_df, rows
 
 app = FastAPI(
-    title='Merchant Growth Copilot API',
-    description='Analytics calculated from public Kaggle retail proxy data, never Paytm data.'
+    title="Paytm Merchant Growth Copilot API",
+    description=(
+        "Autonomous merchant growth engine powered by SQLite, Pandas, and scikit-learn. "
+        "Built exclusively using paytm_merchant_demo_dataset.zip."
+    ),
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -14,92 +21,176 @@ app.add_middleware(
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
-        "http://127.0.0.1:3000"
+        "http://127.0.0.1:3000",
+        "http://localhost:5678",
+        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-def rows(q):
-    with engine.connect() as c:
-        return [dict(x) for x in c.execute(text(q)).mappings()]
+copilot = CopilotEngine.get_instance()
+ml_engine = BasketInferenceEngine.get_instance()
 
-def ready():
-    try:
-        with engine.connect() as c:
-            return c.execute(text('select count(*) from transactions')).scalar()
-    except Exception:
-        return 0
-
-@app.get('/health')
+# ---------------------------------------------------------
+# Health & Status
+# ---------------------------------------------------------
+@app.get("/health")
 def health():
-    return {'status': 'ok', 'transactions': ready(), 'source': 'Kaggle retail proxy; not Paytm data'}
+    ov = copilot.get_overview()
+    cat_count = len(query_df("SELECT product_id FROM catalog"))
+    cust_count = len(query_df("SELECT customer_id_hash FROM customers"))
+    ord_count = len(query_df("SELECT order_id FROM merchant_orders"))
 
-@app.get('/analytics/overview')
-def overview():
-    if not ready():
-        raise HTTPException(503, 'Run backend/scripts/run_pipeline.py first')
-    return rows('select count(*) transactions,round(sum(total_amount),2) revenue,round(sum((selling_price-cost_price)*quantity),2) estimated_profit,round(avg(total_amount),2) avg_line_amount from transactions')[0]
-
-@app.get('/analytics/hourly')
-def hourly():
-    return rows("select strftime('%H',transaction_time) hour,round(sum(total_amount),2) revenue,count(*) transactions from transactions group by 1 order by 1")
-
-@app.get('/analytics/products')
-def products():
-    return rows('select product_id,product_name,sum(quantity) quantity,round(sum(total_amount),2) revenue from transactions group by product_id,product_name order by revenue desc limit 20')
-
-@app.get('/opportunities')
-def opportunities():
-    h = hourly()
-    avg = sum(x['revenue'] for x in h) / len(h)
-    low = [x for x in h if x['revenue'] < avg * .7]
-    return [{'title': 'Improve low-sales hours', 'evidence': {'hours': [x['hour'] for x in low], 'hourly_revenue': [x['revenue'] for x in low], 'baseline_hourly_revenue': round(avg, 2)}}]
-
-@app.post('/profitguard/simulate')
-def profitguard(product_id: str, discount_pct: float = 10):
-    r = rows(f"select product_name,avg(selling_price) price,avg(cost_price) cost,sum(quantity) qty from transactions where product_id='{product_id.replace(chr(39), chr(39)*2)}' group by product_name")
-    if not r:
-        raise HTTPException(404, 'Product not found')
-    x = r[0]
-    base = x['price'] * x['qty']
-    projected = x['price'] * (1 - discount_pct / 100) * x['qty'] * 1.1
     return {
-        'product': x['product_name'],
-        'baseline_revenue': round(base, 2),
-        'baseline_profit': round((x['price'] - x['cost']) * x['qty'], 2),
-        'projected_revenue': round(projected, 2),
-        'projected_profit': round((x['price'] * (1 - discount_pct / 100) - x['cost']) * x['qty'] * 1.1, 2),
-        'assumption': '10% demand lift simulated from historical quantity; cost is documented demo estimate'
+        "status": "ok",
+        "transactions": ov["transactions"],
+        "orders": ord_count,
+        "products": cat_count,
+        "customers": cust_count,
+        "ml_model_status": "trained" if ml_engine.is_trained else "initializing",
+        "source": "Paytm synthetic merchant demo dataset (paytm_merchant_demo_dataset.zip)",
     }
 
-@app.get('/ai/recommendation')
+# ---------------------------------------------------------
+# Financial & Operational Analytics
+# ---------------------------------------------------------
+@app.get("/analytics/overview")
+def overview():
+    return copilot.get_overview()
+
+@app.get("/analytics/hourly")
+def hourly():
+    return copilot.get_hourly()
+
+@app.get("/analytics/products")
+def products():
+    return copilot.get_products()
+
+@app.get("/analytics/customers")
+def customers():
+    return copilot.get_customers()
+
+@app.get("/analytics/inventory/slow-moving")
+def slow_moving():
+    return copilot.get_slow_moving_products()
+
+# ---------------------------------------------------------
+# Opportunities & ProfitGuard
+# ---------------------------------------------------------
+@app.get("/opportunities")
+def opportunities():
+    return copilot.get_opportunities()
+
+@app.post("/profitguard/simulate")
+def profitguard(product_id: str = Query(...), discount_pct: float = Query(10.0)):
+    res = copilot.simulate_profitguard(product_id=product_id, discount_pct=discount_pct)
+    if "error" in res:
+        raise HTTPException(status_code=404, detail=res["error"])
+    return res
+
+@app.get("/ai/recommendation")
 def recommendation():
-    o = opportunities()[0]
-    return {'engine': 'deterministic analytics fallback (no LLM key required)', 'recommendation': o['title'], 'context': o['evidence']}
+    return copilot.get_proactive_recommendation()
 
-_offers_list = [{'offer_type': 'discount', 'data_source': 'historical product price/quantity; simulated only'}]
+# ---------------------------------------------------------
+# Notifications, Alerts & Popups
+# ---------------------------------------------------------
+@app.get("/alerts/active")
+def alerts():
+    return copilot.get_alerts()
 
-@app.get('/offers')
+@app.get("/popups/current")
+def current_popup():
+    return copilot.get_current_popup()
+
+# ---------------------------------------------------------
+# Machine Learning Basket Inference
+# ---------------------------------------------------------
+@app.post("/ml/infer-basket")
+def infer_basket(payload: Dict[str, Any] = Body(...)):
+    amt = float(payload.get("amount_inr", 30.0))
+    hour = int(payload.get("hour", 12))
+    dow = int(payload.get("day_of_week", 2))
+    seg = str(payload.get("customer_segment", "occasional"))
+    return ml_engine.infer_basket(amount_inr=amt, hour=hour, day_of_week=dow, customer_segment=seg)
+
+@app.get("/transactions/{transaction_id}")
+def transaction_detail(transaction_id: str):
+    res = ml_engine.get_transaction_details(transaction_id)
+    if "error" in res:
+        raise HTTPException(status_code=404, detail=res["error"])
+    return res
+
+# ---------------------------------------------------------
+# Offers Management
+# ---------------------------------------------------------
+_runtime_offers: List[Dict[str, Any]] = []
+
+@app.get("/offers")
 def offers():
-    return _offers_list
+    # Fetch from SQLite table
+    db_offers = rows("SELECT * FROM offers")
+    combined = []
+    for o in db_offers:
+        combined.append({
+            "offer_id": o.get("offer_id"),
+            "offer_title": o.get("offer_name"),
+            "offer_name": o.get("offer_name"),
+            "offer_type": o.get("offer_type"),
+            "discount_pct": float(o.get("discount_or_price", 10.0)),
+            "discount_or_price": o.get("discount_or_price"),
+            "description": f"Historical active promo ({o.get('start_time')} to {o.get('end_time')})",
+            "data_source": "historical dataset (offers.csv)",
+            "status": "Active",
+        })
+    combined.extend(_runtime_offers)
+    return combined
 
-@app.post('/offers')
-def create_offer(offer: dict):
+@app.post("/offers")
+def create_offer(offer: Dict[str, Any] = Body(...)):
     if not offer:
-        raise HTTPException(400, 'Offer payload cannot be empty')
-    _offers_list.append(offer)
-    return {'status': 'accepted', 'message': 'Offer created successfully', 'offer': offer}
+        raise HTTPException(status_code=400, detail="Offer payload cannot be empty")
+    new_offer = dict(offer)
+    if "status" not in new_offer:
+        new_offer["status"] = "Active"
+    if "offer_id" not in new_offer:
+        new_offer["offer_id"] = f"OFF_CUSTOM_{len(_runtime_offers) + 101}"
+    if "offer_name" not in new_offer and "offer_title" in new_offer:
+        new_offer["offer_name"] = new_offer["offer_title"]
 
-@app.get('/network/intelligence')
+    _runtime_offers.append(new_offer)
+    return {
+        "status": "accepted",
+        "message": "Offer confirmed and saved by backend!",
+        "offer": new_offer,
+    }
+
+# ---------------------------------------------------------
+# Network Intelligence
+# ---------------------------------------------------------
+@app.get("/network/intelligence")
 def network():
-    return rows('select location,count(*) transactions,round(sum(total_amount),2) revenue from transactions group by location order by revenue desc limit 10')
+    return copilot.get_network_intelligence()
 
-@app.get('/n8n/health')
+# ---------------------------------------------------------
+# n8n Orchestration Endpoints
+# ---------------------------------------------------------
+@app.get("/n8n/health")
 def n8n_health():
-    return {'status': 'ok', 'orchestration': 'n8n-ready', 'mode': 'mock'}
+    return {
+        "status": "ok",
+        "orchestration": "n8n-ready",
+        "mode": "active",
+        "dataset": "paytm_merchant_demo_dataset.zip",
+    }
 
-@app.post('/mock-paytm/action')
-def mock_paytm_action(action: dict):
-    return {'mode': 'mock', 'status': 'accepted', 'action': action}
+@app.post("/mock-paytm/action")
+def mock_paytm_action(action: Dict[str, Any] = Body(...)):
+    return {
+        "mode": "mock",
+        "status": "accepted",
+        "action": action,
+        "message": "Action dispatched to Paytm Merchant Gateway successfully",
+    }
