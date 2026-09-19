@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useBackend } from '../context/BackendContext';
 import { useLanguage } from '../context/LanguageContext';
 import {
@@ -10,28 +10,47 @@ import {
   CheckCircle2,
   RefreshCw,
   Info,
+  AlertTriangle,
 } from 'lucide-react';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 
 export default function Settings() {
-  const { isConnected, healthData, isLoading, lastChecked, checkHealth } = useBackend();
-  const { language, setLanguage, t, speak, isSpeaking, stopSpeaking } = useLanguage();
+  const { isConnected, healthData, isLoading, checkHealth } = useBackend();
+  const {
+    language,
+    setLanguage,
+    t,
+    speak,
+    isSpeaking,
+    stopSpeaking,
+    isVoiceAvailable,
+    languageConfig,
+  } = useLanguage();
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
+  const languagesList = [
+    { code: 'en', label: 'English', desc: 'Default shop language (en-IN)' },
+    { code: 'hi', label: 'हिंदी (Hindi)', desc: 'हिंदी में व्यापार सलाह और बोलकर सुनें (hi-IN)' },
+    { code: 'kn', label: 'ಕನ್ನಡ (Kannada)', desc: 'ಕನ್ನಡದಲ್ಲಿ ವ್ಯಾಪಾರ ಸಲಹೆ ಮತ್ತು ಧ್ವನಿ (kn-IN)' },
+    { code: 'ta', label: 'தமிழ் (Tamil)', desc: 'தமிழில் வணிக ஆலோசனைகள் மற்றும் குரல் (ta-IN)' },
+    { code: 'te', label: 'తెలుగు (Telugu)', desc: 'తెలుగులో వ్యాపార సలహాలు మరియు వాయిస్ (te-IN)' },
+    { code: 'ml', label: 'മലയാളം (Malayalam)', desc: 'മലയാളത്തിൽ ബിസിനസ്സ് ഉപദേശങ്ങളും വോയ്‌സും (ml-IN)' },
+    { code: 'mr', label: 'मराठी (Marathi)', desc: 'मराठीत व्यवसाय सल्ला आणि बोलून ऐका (mr-IN)' },
+    { code: 'bn', label: 'বাংলা (Bengali)', desc: 'বাংলায় ব্যবসার পরামর্শ ও মুখে শোনা (bn-IN)' },
+  ];
 
   const handleTestVoice = () => {
     if (isSpeaking) {
       stopSpeaking();
     } else {
-      let sample = "Welcome to Paytm Merchant Assistant. No prompts, just profits.";
-      if (language === 'hi') {
-        sample = "पेटीएम मर्चेंट बिज़नेस साथी में आपका स्वागत है। कोई झंझट नहीं, सिर्फ़ मुनाफ़ा।";
-      } else if (language === 'kn') {
-        sample = "ಪೇಟಿಎಂ ಮರ್ಚೆಂಟ್ ವ್ಯಾಪಾರ ಸಹಾಯಕಕ್ಕೆ ಸುಸ್ವಾಗತ. ಯಾವುದೇ ಗೊಂದಲವಿಲ್ಲ, ಕೇವಲ ಲಾಭ.";
-      }
+      const sample = t('voiceTestSample');
       speak(sample, language);
     }
   };
+
+  const currentCfg = languageConfig[language] || languageConfig.en;
+  const voiceInstalled = isVoiceAvailable(language);
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -46,9 +65,9 @@ export default function Settings() {
               {t('navSettings')}
             </span>
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Shop Settings</h2>
+          <h2 className="text-xl font-bold text-slate-900">Shop Settings & Languages</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Configure your preferred language, speech assistant, and shop connection.
+            Configure your preferred Indian language, speech assistant, and store backend connection.
           </p>
         </div>
 
@@ -63,48 +82,73 @@ export default function Settings() {
       </div>
 
       {/* Language & Voice Settings */}
-      <Card title="Language & Voice Assistant" subtitle="Select the language your assistant speaks">
+      <Card
+        title="Language & Voice Assistant"
+        subtitle="Choose from 8 Indian languages for audio readout and UI"
+      >
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { code: 'en', label: 'English', desc: 'Default shop language' },
-              { code: 'hi', label: 'हिंदी (Hindi)', desc: 'हिंदी में सलाह और बोलकर सुनें' },
-              { code: 'kn', label: 'ಕನ್ನಡ (Kannada)', desc: 'ಕನ್ನಡದಲ್ಲಿ ಸಲಹೆ ಮತ್ತು ಧ್ವನಿ' },
-            ].map((item) => (
-              <button
-                key={item.code}
-                onClick={() => setLanguage(item.code)}
-                className={`p-4 rounded-xl border text-left transition-all ${
-                  language === item.code
-                    ? 'border-[#002970] bg-blue-50/50 shadow-sm'
-                    : 'border-slate-200 hover:border-slate-300 bg-white'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-bold text-slate-900">{item.label}</span>
-                  {language === item.code && (
-                    <CheckCircle2 className="w-4 h-4 text-[#002970]" />
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500">{item.desc}</p>
-              </button>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {languagesList.map((item) => {
+              const active = language === item.code;
+              const hasVoice = isVoiceAvailable(item.code);
+
+              return (
+                <button
+                  key={item.code}
+                  onClick={() => setLanguage(item.code)}
+                  className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                    active
+                      ? 'border-[#002970] bg-blue-50/60 shadow-sm ring-1 ring-[#002970]'
+                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-extrabold text-slate-900">{item.label}</span>
+                    {active && <CheckCircle2 className="w-4 h-4 text-[#002970]" />}
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-tight mb-2">{item.desc}</p>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        hasVoice
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-slate-100 text-slate-500'
+                      }`}
+                    >
+                      {hasVoice ? '🔊 Voice Ready' : 'Text Ready'}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-xs text-slate-600 font-medium">
-              Test your browser's speech capability in {language === 'hi' ? 'Hindi' : language === 'kn' ? 'Kannada' : 'English'}:
-            </span>
+          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="text-xs text-slate-600">
+              <span className="font-semibold">Selected:</span>{' '}
+              <span className="text-[#002970] font-bold">
+                {currentCfg.nativeName} ({currentCfg.name} - {currentCfg.bcp47})
+              </span>
+              {!voiceInstalled && language !== 'en' && (
+                <div className="text-[11px] text-amber-700 mt-0.5 flex items-center gap-1 font-medium">
+                  <AlertTriangle className="w-3 h-3 text-amber-600 shrink-0" />
+                  <span>
+                    Speech voice not detected on this browser/OS. The assistant will display translated text without fallback to English.
+                  </span>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={handleTestVoice}
-              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
                 isSpeaking
                   ? 'bg-rose-50 text-rose-700 border border-rose-200 animate-pulse'
-                  : 'bg-slate-100 hover:bg-slate-200 text-[#002970]'
+                  : 'bg-[#002970] hover:bg-[#00225c] text-white shadow-sm'
               }`}
             >
-              {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#0083ca]" />}
-              <span>{isSpeaking ? t('stopSpeaking') : '🔊 Test Voice Playback'}</span>
+              {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#00b9f1]" />}
+              <span>{isSpeaking ? t('stopSpeaking') : `🔊 Test Voice (${currentCfg.name})`}</span>
             </button>
           </div>
         </div>
@@ -134,11 +178,11 @@ export default function Settings() {
         </div>
       </Card>
 
-      {/* Honest Proxy Notice */}
+      {/* Notice */}
       <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3 text-xs text-slate-500">
         <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
         <p>
-          <strong>Notice:</strong> This system uses a public retail dataset proxy (MIT License) for hackathon demonstration. It does not access private live banking accounts without explicit merchant API authentication.
+          <strong>Notice:</strong> This system uses a public retail dataset proxy (MIT License) for hackathon demonstration. It connects to the Paytm Growth Copilot analytical engine without accessing external banking credentials.
         </p>
       </div>
     </div>

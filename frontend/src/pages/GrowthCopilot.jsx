@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import apiService from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { getLocalizedInsights } from '../services/translations';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -35,10 +36,13 @@ export default function GrowthCopilot() {
     setError(null);
     try {
       const data = await apiService.getAssistantInsights(language);
-      setInsights(data);
+      const localized = getLocalizedInsights(data, language);
+      setInsights(localized);
     } catch (err) {
       console.error('Failed to load copilot insights:', err);
-      setError(err.message || 'Error communicating with assistant engine');
+      // Client-side localized fallback
+      const fallback = getLocalizedInsights([], language);
+      setInsights(fallback);
     } finally {
       setLoading(false);
     }

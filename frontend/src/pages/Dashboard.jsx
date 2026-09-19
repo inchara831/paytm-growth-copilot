@@ -28,6 +28,7 @@ import {
 import apiService from '../services/api';
 import { useBackend } from '../context/BackendContext';
 import { useLanguage } from '../context/LanguageContext';
+import { getLocalizedInsights } from '../services/translations';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -67,8 +68,9 @@ export default function Dashboard() {
       setProducts(productsData.slice(0, 5));
       setSlowProducts(slowData.slice(0, 5));
       setBasketData(basket);
-      if (insights && insights.length > 0) {
-        setTopInsight(insights[0]);
+      const localized = getLocalizedInsights(insights, language);
+      if (localized && localized.length > 0) {
+        setTopInsight(localized[0]);
       }
     } catch (err) {
       console.error('Failed to load dashboard data:', err);

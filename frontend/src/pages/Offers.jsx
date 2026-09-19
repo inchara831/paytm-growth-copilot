@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import apiService from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { getLocalizedOffers } from '../services/translations';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import Alert from '../components/common/Alert';
@@ -54,10 +55,13 @@ export default function Offers() {
         apiService.getSuggestedOffers(language),
       ]);
       setActiveOffers(active);
-      setSuggestedOffers(suggested);
+      const localized = getLocalizedOffers(suggested, language);
+      setSuggestedOffers(localized);
     } catch (err) {
       console.error('Failed to load offers:', err);
-      setError(err.message || 'Error communicating with backend');
+      // Client-side localized fallback
+      const fallback = getLocalizedOffers([], language);
+      setSuggestedOffers(fallback);
     } finally {
       setLoading(false);
     }
