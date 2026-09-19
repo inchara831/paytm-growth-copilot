@@ -5,6 +5,8 @@ from typing import Dict, List, Any, Optional
 from backend.app.copilot import CopilotEngine
 from backend.app.ml import BasketInferenceEngine
 from backend.app.database import query_df, rows
+from backend.app.services.llm_service import llm_service
+from backend.app.cognee_memory import cognee_memory
 
 app = FastAPI(
     title="Paytm Merchant Growth Copilot API",
@@ -58,9 +60,32 @@ def health():
         "products": cat_count,
         "customers": cust_count,
         "ml_model_status": "trained" if ml_engine.is_trained else "initializing",
+        "cognee_memory": cognee_memory.get_status(),
+        "llm_provider": llm_service.provider,
         "source": "Paytm synthetic merchant demo dataset (paytm_merchant_demo_dataset.zip)",
         "merchant": m_info,
     }
+
+# ---------------------------------------------------------
+# Cognee Business Memory & Real LLM Copilot Chat Endpoints
+# ---------------------------------------------------------
+@app.get("/memory/status")
+def memory_status():
+    return cognee_memory.get_status()
+
+@app.post("/history/query")
+def history_query(payload: Dict[str, Any] = Body(...)):
+    query = payload.get("query", "").strip()
+    return cognee_memory.query_historical_memory(query)
+
+@app.post("/copilot/chat")
+def copilot_chat(payload: Dict[str, Any] = Body(...)):
+    message = payload.get("message", "").strip()
+    history = payload.get("conversation_history") or payload.get("history") or []
+    language = payload.get("language", "auto")
+    if not message:
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+    return llm_service.chat(message, conversation_history=history, language=language)
 
 @app.get("/merchant")
 def get_merchant():

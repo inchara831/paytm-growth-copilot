@@ -120,6 +120,9 @@ All endpoints run on `http://127.0.0.1:8000`:
 | `GET` | `/offers` | Active store promotional offers |
 | `POST` | `/offers` | Create or activate an offer confirmed by backend |
 | `GET` | `/ai/recommendation` | Proactive highest-profit recommendation with multilingual voice scripts |
+| `POST` | `/copilot/chat` | Real LLM Copilot Chat (Gemini + Cognee Business Memory + Analytics) |
+| `GET` | `/memory/status` | Cognee historical business memory status and indexed record count |
+| `POST` | `/history/query` | Direct semantic retrieval from Cognee historical memory |
 | `GET` | `/alerts/active` | Active merchant alerts ready for soundbox / push broadcast |
 | `GET` | `/popups/current` | Popup overlay response for dashboard / mobile app |
 | `POST` | `/ml/infer-basket` | Predicts product items & confidence score for unreceipted UPI payments |
@@ -127,6 +130,40 @@ All endpoints run on `http://127.0.0.1:8000`:
 | `GET` | `/network/intelligence` | Aggregated regional network clusters and revenue |
 | `GET` | `/n8n/health` | n8n orchestration status check |
 | `POST` | `/mock-paytm/action` | Mock payload handler for automated workflow actions |
+
+---
+
+## 🧠 Real LLM & Cognee Business Memory Architecture
+
+Paytm Merchant Growth Copilot connects a real **Google Gemini LLM** with **Cognee Business Memory** and verified backend calculations:
+
+```
+Merchant transaction data (merchant.db: 400,916 historical records)
+        ↓
+Existing Analytics + ML (CopilotEngine, BasketInferenceEngine)
+        ↓
+Cognee Business Memory (Dec 2009 – Dec 2010 Chronicles & Patterns)
+        ↓
+Verified Business Context Builder (Zero-Hallucination Guard)
+        ↓
+LLM Service (Google Gemini / google-genai)
+        ↓
+Merchant-friendly explanation & actionable recommendation
+        ↓
+Growth Copilot UI & Ask Copilot AI Assistant
+```
+
+### Zero-Hallucination Grounding Policy
+The LLM is an intelligence and natural language reasoning layer. It is **strictly forbidden** from inventing sales numbers, profit figures, transaction volumes, or discounts. All facts must come from:
+1. **Real-time shop calculations**: ₹1,91,475.00 sales, ₹1,04,821.65 estimated profit, 54.7% margin, 42% afternoon sales dip.
+2. **ML basket inference**: Top co-occurring pairs (Tea + Samosa, 91% confidence).
+3. **Cognee historical memory**: 400,916 indexed historical records, seasonal peak in November 2010 (₹11.66 Lakhs), January dip (₹5.04 Lakhs).
+
+### Dynamic Multi-Language Detection
+Language strictly follows the user's message:
+- English input (`"hey"`, `"How are my sales today?"`) → Responds in natural, friendly English.
+- Kannada input (`"ನನ್ನ ಮಾರಾಟ ಹೇಗಿದೆ?"`) → Responds in natural Kannada.
+- Hindi input (`"आज मेरी बिक्री कैसी है?"`) → Responds in natural Hindi.
 
 ---
 

@@ -254,3 +254,46 @@ def test_assistant_insights_multilingual():
     kn = main.assistant_insights("kn")
     assert len(kn) >= 3
     assert "ಮಾರಾಟ" in kn[0]["what_is_happening"]
+
+def test_copilot_chat_greeting():
+    res = main.copilot_chat({"message": "hey"})
+    assert "reply" in res
+    assert res["language"] == "en"
+    assert "Hey!" in res["reply"] or "help" in res["reply"].lower()
+
+def test_copilot_chat_sales_grounded():
+    res = main.copilot_chat({"message": "How are my sales today?"})
+    assert "reply" in res
+    assert res["language"] == "en"
+    # Grounded numbers from backend
+    assert "191,475" in res["reply"] or "191475" in res["reply"]
+    assert "54.7" in res["reply"]
+    assert "Samosa" in res["reply"]
+    assert "Tea" in res["reply"]
+
+def test_copilot_chat_historical_cognee():
+    res = main.copilot_chat({"message": "Compare this month with last month."})
+    assert "reply" in res
+    assert "Cognee" in res["reply"] or "Historical" in res["reply"] or "baseline" in res["reply"].lower()
+
+def test_copilot_chat_language_matching():
+    # Kannada input must return Kannada
+    kn_res = main.copilot_chat({"message": "ನನ್ನ ಮಾರಾಟ ಹೇಗಿದೆ?"})
+    assert kn_res["language"] == "kn"
+    assert "ಮಾರಾಟ" in kn_res["reply"] or "ಅಂಗಡಿಯ" in kn_res["reply"]
+
+    # Hindi input must return Hindi
+    hi_res = main.copilot_chat({"message": "आज मेरी बिक्री कैसी है?"})
+    assert hi_res["language"] == "hi"
+    assert "बिक्री" in hi_res["reply"] or "दुकान" in hi_res["reply"]
+
+def test_memory_status_and_history_query():
+    status = main.memory_status()
+    assert status["status"] == "Connected"
+    assert status["records_indexed"] == 400916
+    assert "Dec" in status["timeframe"]
+
+    hist = main.history_query({"query": "How did my business perform last year?"})
+    assert isinstance(hist, list)
+    assert len(hist) > 0
+    assert "annual_summary" in hist[0]["type"] or "headline" in hist[0]

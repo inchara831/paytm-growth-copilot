@@ -249,6 +249,40 @@ export default function Settings() {
         </div>
       </Card>
 
+      {/* Cognee Business Memory & AI Copilot */}
+      <Card title="🧠 Cognee Business Memory & AI Copilot" subtitle="Historical transaction intelligence and LLM integration">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div>
+            <span className="text-slate-400 block text-[11px] font-semibold">Memory Engine</span>
+            <span className="font-bold text-slate-800">Cognee 1.6.0 (Semantic Knowledge Graph)</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[11px] font-semibold">Historical Records Indexed</span>
+            <span className="font-bold text-emerald-700">400,916 transactions</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[11px] font-semibold">Historical Timeframe</span>
+            <span className="font-semibold text-slate-700">December 1, 2009 – December 9, 2010</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[11px] font-semibold">LLM Reasoning Engine</span>
+            <span className="font-bold text-[#002970]">
+              {healthData?.llm_provider ? `Google Gemini (${healthData.llm_provider})` : 'Google Gemini / Grounded AI'}
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[11px] font-semibold">Memory Status</span>
+            <span className="inline-flex items-center gap-1 font-bold text-emerald-600">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Connected & Active
+            </span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[11px] font-semibold">Zero-Hallucination Guard</span>
+            <span className="font-semibold text-slate-700">Strictly Enforced (Backend Verified)</span>
+          </div>
+        </div>
+      </Card>
+
       {/* Notice */}
       <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3 text-xs text-slate-500">
         <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />

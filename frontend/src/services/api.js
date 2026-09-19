@@ -110,6 +110,18 @@ export const apiService = {
     const res = await apiClient.post('/mock-paytm/action', actionData);
     return res.data;
   },
+
+  // Real LLM Copilot Chat
+  chatCopilot: async (payload) => {
+    const res = await apiClient.post('/copilot/chat', payload);
+    return res.data;
+  },
+
+  // Cognee Business Memory Status
+  getMemoryStatus: async () => {
+    const res = await apiClient.get('/memory/status');
+    return res.data;
+  },
 };
 
 export default apiService;
