@@ -51,25 +51,27 @@ export default function Sidebar({ isOpen, onClose }) {
         }`}
       >
         {/* Brand Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#002970] flex items-center justify-center text-white shadow-sm font-bold text-lg tracking-wider">
-              <span className="text-[#00b9f1]">P</span>M
-            </div>
-            <div>
-              <h1 className="text-sm font-bold text-[#002970] leading-tight">
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex flex-col gap-1.5">
+            <img
+              src="/paytm_upi_logo.png"
+              alt="Paytm ♥ UPI"
+              className="h-8 sm:h-9 w-auto object-contain shrink-0"
+            />
+            <div className="flex items-center gap-1.5 pl-0.5">
+              <span className="text-xs font-extrabold text-[#002970] tracking-wider uppercase">
                 {t('appName')}
-              </h1>
-              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                {t('appSubname')}
-              </p>
+              </span>
+              <span className="text-[10px] font-extrabold text-[#00b9f1] bg-sky-50 px-1.5 py-0.5 rounded border border-[#bfe8f6] uppercase">
+                Copilot
+              </span>
             </div>
           </div>
         </div>
 
         {/* Tagline Banner */}
         <div className="mx-4 mt-3 mb-2 px-3 py-1.5 bg-[#e6f7fc] border border-[#bfe8f6] rounded-xl">
-          <p className="text-[11px] font-bold text-[#0083ca] text-center tracking-wide">
+          <p className="text-xs font-extrabold text-[#0083ca] text-center tracking-wide">
             "{t('tagline')}"
           </p>
         </div>
@@ -85,11 +87,11 @@ export default function Sidebar({ isOpen, onClose }) {
                 end={item.end}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  `flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${
                     isActive
                       ? 'bg-[#002970] text-white shadow-sm'
                       : item.highlight
-                      ? 'bg-blue-50/70 text-[#002970] hover:bg-blue-100/70 border border-blue-100'
+                      ? 'bg-blue-50/80 text-[#002970] hover:bg-blue-100 border border-blue-100 font-extrabold'
                       : 'text-slate-600 hover:text-[#002970] hover:bg-slate-50'
                   }`
                 }
@@ -110,7 +112,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     </div>
                     {item.badge && (
                       <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                        className={`text-xs font-black px-2 py-0.5 rounded-full ${
                           isActive
                             ? 'bg-[#00b9f1] text-[#002970]'
                             : 'bg-[#002970] text-white'
@@ -134,9 +136,9 @@ export default function Sidebar({ isOpen, onClose }) {
                   to={item.path}
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                       isActive
-                        ? 'bg-[#002970] text-white'
+                        ? 'bg-[#002970] text-white font-bold'
                         : 'text-slate-600 hover:text-[#002970] hover:bg-slate-50'
                     }`
                   }
@@ -158,17 +160,17 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* Merchant Info Footer */}
         <div className="p-3 border-t border-slate-100 bg-slate-50/70">
           <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200 shadow-sm">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-[#002970]">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-[#002970] shrink-0">
               <Store className="w-4 h-4 text-[#002970]" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <p className="text-xs font-bold text-slate-800 truncate">
+                <p className="text-xs font-extrabold text-slate-800 truncate">
                   {t('shopName')}
                 </p>
-                <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
               </div>
-              <p className="text-[10px] text-slate-400 truncate">{t('shopId')}</p>
+              <p className="text-[11px] text-slate-500 font-semibold font-mono truncate">{t('shopId')}</p>
             </div>
           </div>
         </div>

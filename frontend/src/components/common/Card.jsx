@@ -6,8 +6,8 @@ export default function Card({ children, className = '', title, subtitle, action
       {(title || subtitle || action) && (
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div>
-            {title && <h3 className="text-base font-semibold text-slate-800">{title}</h3>}
-            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+            {title && <h3 className="text-lg font-bold text-slate-900 tracking-tight">{title}</h3>}
+            {subtitle && <p className="text-sm font-medium text-slate-500 mt-0.5">{subtitle}</p>}
           </div>
           {action && <div>{action}</div>}
         </div>

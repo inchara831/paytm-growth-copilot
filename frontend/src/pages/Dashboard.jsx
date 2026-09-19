@@ -121,34 +121,34 @@ export default function Dashboard() {
       {topInsight && (
         <div className="bg-gradient-to-r from-[#002970] via-[#003896] to-[#002970] text-white rounded-2xl p-6 sm:p-7 shadow-elevated border border-blue-900 relative overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-            <div className="space-y-2 max-w-2xl">
+            <div className="space-y-2.5 max-w-2xl">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00b9f1]/20 text-[#00b9f1] border border-[#00b9f1]/30 text-xs font-bold tracking-wide">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#00b9f1]/25 text-[#00b9f1] border border-[#00b9f1]/40 text-xs sm:text-sm font-extrabold tracking-wide">
+                  <Sparkles className="w-4 h-4" />
                   {t('whatYouCanDoToday')}
                 </span>
-                <span className="text-xs font-bold text-emerald-300 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                <span className="text-xs sm:text-sm font-black text-emerald-300 bg-emerald-950/70 px-3 py-1 rounded-full border border-emerald-400/40">
                   +{topInsight.expected_extra_profit_display || '₹180/day'}
                 </span>
               </div>
 
-              <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-snug">
                 {topInsight.title}
               </h3>
 
-              <p className="text-sm text-blue-100 leading-relaxed font-normal">
+              <p className="text-sm sm:text-base text-blue-100 leading-relaxed font-medium">
                 {topInsight.what_is_happening}{' '}
-                <strong className="text-white font-semibold">{topInsight.what_to_do}</strong>
+                <strong className="text-white font-bold">{topInsight.what_to_do}</strong>
               </p>
             </div>
 
             <div className="flex items-center gap-3 shrink-0 self-start md:self-auto">
               <button
                 onClick={handleListenInsight}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-extrabold transition-all shadow-sm ${
                   isSpeaking
                     ? 'bg-rose-500 text-white animate-pulse hover:bg-rose-600'
-                    : 'bg-white/15 hover:bg-white/25 text-white border border-white/20'
+                    : 'bg-white/15 hover:bg-white/25 text-white border border-white/25'
                 }`}
               >
                 {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#00b9f1]" />}
@@ -157,7 +157,7 @@ export default function Dashboard() {
 
               <button
                 onClick={() => navigate('/offers?action=create')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#00b9f1] hover:bg-[#33c7f4] text-[#002970] rounded-xl text-xs font-bold transition-all shadow-md"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#00b9f1] hover:bg-[#33c7f4] text-[#002970] rounded-xl text-sm font-extrabold transition-all shadow-md"
               >
                 <Plus className="w-4 h-4" />
                 <span>{t('createOffer')}</span>
@@ -169,11 +169,11 @@ export default function Dashboard() {
 
       {/* 2. FOUR SIMPLE MERCHANT METRIC CARDS */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">
+        <div className="flex items-center justify-between mb-3.5">
+          <h3 className="text-base font-extrabold uppercase tracking-wider text-slate-600">
             {t('todaysBusiness')}
           </h3>
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-sm text-slate-500 font-semibold">
             Sharma Tea & General Store (Shop M001)
           </span>
         </div>
@@ -183,13 +183,13 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-card hover:border-slate-300 transition-all">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <p className="text-xs sm:text-sm font-extrabold text-slate-600 uppercase tracking-wider">
                   {t('salesToday')}
                 </p>
-                <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tracking-tight">
+                <p className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
                   ₹{overview?.revenue ? Number(overview.revenue).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}
                 </p>
-                <p className="text-xs text-slate-400 mt-1 font-medium">{t('salesDesc')}</p>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1 font-semibold">{t('salesDesc')}</p>
               </div>
               <div className="p-3 rounded-xl bg-blue-50 text-[#002970]">
                 <IndianRupee className="w-5 h-5" />
@@ -201,13 +201,13 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-card hover:border-slate-300 transition-all">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <p className="text-xs sm:text-sm font-extrabold text-slate-600 uppercase tracking-wider">
                   {t('profitToday')}
                 </p>
-                <p className="text-2xl sm:text-3xl font-extrabold text-emerald-700 mt-2 tracking-tight">
+                <p className="text-3xl sm:text-4xl font-black text-emerald-700 mt-2 tracking-tight">
                   ₹{overview?.estimated_profit ? Number(overview.estimated_profit).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'}
                 </p>
-                <p className="text-xs text-emerald-600 mt-1 font-medium">
+                <p className="text-xs sm:text-sm text-emerald-700 mt-1 font-bold">
                   {overview?.revenue && overview?.estimated_profit
                     ? `${((overview.estimated_profit / overview.revenue) * 100).toFixed(0)}% profit margin`
                     : t('profitDesc')}
@@ -223,13 +223,13 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-card hover:border-slate-300 transition-all">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <p className="text-xs sm:text-sm font-extrabold text-slate-600 uppercase tracking-wider">
                   {t('paymentsCount')}
                 </p>
-                <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tracking-tight">
+                <p className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
                   {overview?.transactions ? Number(overview.transactions).toLocaleString('en-IN') : '0'}
                 </p>
-                <p className="text-xs text-slate-400 mt-1 font-medium">{t('paymentsDesc')}</p>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1 font-semibold">{t('paymentsDesc')}</p>
               </div>
               <div className="p-3 rounded-xl bg-purple-50 text-purple-700">
                 <Receipt className="w-5 h-5" />
@@ -241,13 +241,13 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-card hover:border-slate-300 transition-all">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <p className="text-xs sm:text-sm font-extrabold text-slate-600 uppercase tracking-wider">
                   {t('averageBill')}
                 </p>
-                <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tracking-tight">
+                <p className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">
                   ₹{overview?.avg_line_amount ? Number(overview.avg_line_amount).toFixed(2) : '0'}
                 </p>
-                <p className="text-xs text-slate-400 mt-1 font-medium">{t('averageBillDesc')}</p>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1 font-semibold">{t('averageBillDesc')}</p>
               </div>
               <div className="p-3 rounded-xl bg-sky-50 text-[#0083ca]">
                 <ShoppingBag className="w-5 h-5" />
@@ -262,14 +262,14 @@ export default function Dashboard() {
         title={t('salesByHour')}
         subtitle={t('salesByHourSub')}
         action={
-          <div className="flex items-center gap-3 text-xs font-medium">
+          <div className="flex items-center gap-3 text-xs sm:text-sm font-bold">
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-md bg-[#002970]"></span>
-              <span className="text-slate-700">{t('busyHours')}</span>
+              <span className="w-3.5 h-3.5 rounded-md bg-[#002970]"></span>
+              <span className="text-slate-800">{t('busyHours')}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-md bg-[#f59e0b]"></span>
-              <span className="text-amber-700 font-semibold">{t('slowHours')}</span>
+              <span className="w-3.5 h-3.5 rounded-md bg-[#f59e0b]"></span>
+              <span className="text-amber-800 font-extrabold">{t('slowHours')}</span>
             </div>
           </div>
         }
@@ -281,23 +281,24 @@ export default function Dashboard() {
               <XAxis
                 dataKey="hour"
                 tickFormatter={(val) => `${Number(val)}:00`}
-                tick={{ fontSize: 11, fill: '#64748b' }}
-                axisLine={{ stroke: '#e2e8f0' }}
+                tick={{ fontSize: 12, fill: '#475569', fontWeight: 600 }}
+                axisLine={{ stroke: '#cbd5e1' }}
               />
               <YAxis
-                tick={{ fontSize: 11, fill: '#64748b' }}
+                tick={{ fontSize: 12, fill: '#475569', fontWeight: 600 }}
                 tickFormatter={(val) => `₹${(val / 1000).toFixed(0)}k`}
-                axisLine={{ stroke: '#e2e8f0' }}
+                axisLine={{ stroke: '#cbd5e1' }}
               />
               <Tooltip
                 formatter={(val) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Sales']}
                 labelFormatter={(label) => `${label}:00`}
                 contentStyle={{
                   backgroundColor: '#ffffff',
-                  borderColor: '#e2e8f0',
+                  borderColor: '#cbd5e1',
                   borderRadius: '12px',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                  fontSize: '12px',
+                  fontSize: '13px',
+                  fontWeight: 600,
                 }}
               />
               <Bar dataKey="revenue" radius={[6, 6, 0, 0]}>
@@ -315,15 +316,15 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-4 p-3.5 bg-amber-50 rounded-xl border border-amber-200/80 flex items-start gap-2.5 text-xs text-amber-900">
+        <div className="mt-4 p-3.5 bg-amber-50 rounded-xl border border-amber-200/80 flex items-start gap-2.5 text-xs sm:text-sm text-amber-950 font-medium">
           <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <span className="font-bold">{t('slowHours')}: </span>
+            <span className="font-extrabold">{t('slowHours')}: </span>
             <span>{t('slowHoursDetected')}</span>
           </div>
           <button
             onClick={() => navigate('/offers?action=create')}
-            className="text-xs font-bold text-[#002970] underline hover:text-[#0083ca]"
+            className="text-xs sm:text-sm font-black text-[#002970] underline hover:text-[#0083ca]"
           >
             {t('createOffer')} →
           </button>
@@ -339,9 +340,9 @@ export default function Dashboard() {
           action={
             <button
               onClick={() => navigate('/products')}
-              className="text-xs font-semibold text-[#002970] hover:text-[#0083ca] flex items-center gap-1"
+              className="text-xs sm:text-sm font-extrabold text-[#002970] hover:text-[#0083ca] flex items-center gap-1"
             >
-              See All <ArrowRight className="w-3.5 h-3.5" />
+              See All <ArrowRight className="w-4 h-4" />
             </button>
           }
         >
@@ -349,27 +350,27 @@ export default function Dashboard() {
             {products.map((p, idx) => (
               <div
                 key={p.product_id}
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100 hover:border-slate-200 transition-colors"
+                className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80 hover:border-slate-300 transition-colors"
               >
                 <div className="min-w-0 flex-1 pr-3">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-blue-100 text-[#002970] flex items-center justify-center text-[10px] font-bold">
+                    <span className="w-5 h-5 rounded-full bg-blue-100 text-[#002970] flex items-center justify-center text-xs font-black shrink-0">
                       {idx + 1}
                     </span>
-                    <p className="text-xs font-bold text-slate-800 truncate" title={p.product_name}>
+                    <p className="text-sm font-extrabold text-slate-900 truncate" title={p.product_name}>
                       {p.product_name}
                     </p>
                   </div>
-                  <p className="text-[11px] text-slate-500 mt-1 pl-7 font-medium">
+                  <p className="text-xs text-slate-600 mt-1 pl-7 font-semibold">
                     {p.quantity?.toLocaleString('en-IN')} {t('units')} {t('sold')}
                   </p>
                 </div>
 
                 <div className="text-right shrink-0">
-                  <p className="text-xs font-extrabold text-slate-900">
+                  <p className="text-sm font-black text-slate-900">
                     ₹{Number(p.revenue).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </p>
-                  <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                  <span className="text-[11px] font-extrabold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded">
                     Top Seller
                   </span>
                 </div>
@@ -385,9 +386,9 @@ export default function Dashboard() {
           action={
             <button
               onClick={() => navigate('/copilot')}
-              className="text-xs font-semibold text-[#002970] hover:text-[#0083ca] flex items-center gap-1"
+              className="text-xs sm:text-sm font-extrabold text-[#002970] hover:text-[#0083ca] flex items-center gap-1"
             >
-              Combo Ideas <ArrowRight className="w-3.5 h-3.5" />
+              Combo Ideas <ArrowRight className="w-4 h-4" />
             </button>
           }
         >
@@ -395,18 +396,18 @@ export default function Dashboard() {
             {slowProducts.map((p, idx) => (
               <div
                 key={p.product_id}
-                className="flex items-center justify-between p-3 rounded-xl bg-amber-50/50 border border-amber-100 hover:border-amber-200 transition-colors"
+                className="flex items-center justify-between p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80 hover:border-amber-300 transition-colors"
               >
                 <div className="min-w-0 flex-1 pr-3">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[10px] font-bold">
+                    <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center text-xs font-black shrink-0">
                       !
                     </span>
-                    <p className="text-xs font-bold text-slate-800 truncate" title={p.product_name}>
+                    <p className="text-sm font-extrabold text-slate-900 truncate" title={p.product_name}>
                       {p.product_name}
                     </p>
                   </div>
-                  <p className="text-[11px] text-amber-700 mt-1 pl-7 font-medium">
+                  <p className="text-xs text-amber-800 mt-1 pl-7 font-semibold">
                     Only {p.quantity} {t('units')} sold (₹{p.revenue} total)
                   </p>
                 </div>
@@ -417,7 +418,7 @@ export default function Dashboard() {
                       `/offers?action=create&bundle=${encodeURIComponent(p.product_name)}`
                     )
                   }
-                  className="px-2.5 py-1.5 bg-[#002970] hover:bg-[#00225c] text-white text-[11px] font-semibold rounded-lg shrink-0 transition-colors"
+                  className="px-3 py-1.5 bg-[#002970] hover:bg-[#00225c] text-white text-xs font-bold rounded-lg shrink-0 transition-colors shadow-sm"
                 >
                   Bundle This
                 </button>
@@ -437,31 +438,31 @@ export default function Dashboard() {
             {basketData.suggestions?.map((pair, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between"
+                className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold text-[#002970] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                    <span className="text-xs font-extrabold text-[#002970] bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
                       {t('frequentlyBoughtTogether')}
                     </span>
-                    <span className="text-[11px] font-bold text-emerald-700">
+                    <span className="text-xs font-black text-emerald-800">
                       {pair.confidence}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-800 my-2">
+                  <div className="flex items-center gap-2 text-sm font-black text-slate-900 my-2.5">
                     <span className="truncate">{pair.item_a}</span>
-                    <span className="text-[#00b9f1] font-extrabold">+</span>
+                    <span className="text-[#00b9f1] font-black">+</span>
                     <span className="truncate">{pair.item_b}</span>
                   </div>
 
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-xs text-slate-600 font-medium">
                     Customers bought this pair together {pair.pair_count} times in past sales.
                   </p>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-slate-200/80 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400 italic">Estimated prediction</span>
+                <div className="mt-3.5 pt-3 border-t border-slate-200 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-500 font-semibold italic">Estimated prediction</span>
                   <button
                     onClick={() =>
                       navigate(
@@ -470,7 +471,7 @@ export default function Dashboard() {
                         )}`
                       )
                     }
-                    className="text-xs font-bold text-[#002970] hover:underline"
+                    className="text-xs sm:text-sm font-extrabold text-[#002970] hover:underline"
                   >
                     Make a Combo →
                   </button>
