@@ -1,12 +1,19 @@
-﻿import sqlite3
+import os
+import sqlite3
 from pathlib import Path
 import pandas as pd
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = BASE_DIR / "backend" / "data"
-DB_PATH = DATA_DIR / "merchant.db"
+
+# In Vercel or read-only serverless environments, use /tmp for SQLite
+if os.getenv("VERCEL") or not os.access(str(BASE_DIR), os.W_OK):
+    DATA_DIR = Path("/tmp") / "data"
+    DB_PATH = DATA_DIR / "merchant.db"
+else:
+    DATA_DIR = BASE_DIR / "backend" / "data"
+    DB_PATH = DATA_DIR / "merchant.db"
 
 def ensure_database():
     if not DB_PATH.exists():

@@ -9,11 +9,10 @@ import os
 import sqlite3
 from typing import Dict, List, Any, Optional
 from pathlib import Path
+from backend.app.database import DB_PATH, DATA_DIR
 
-# Paths
 BASE_DIR = Path(__file__).resolve().parents[2]
-DB_PATH = BASE_DIR / "backend" / "data" / "merchant.db"
-COGNEE_DIR = BASE_DIR / "backend" / "data" / ".cognee_system"
+COGNEE_DIR = DATA_DIR / ".cognee_system"
 
 # Historical Business Chronicles compiled from the 400,916 records
 HISTORICAL_CHRONICLES = [

@@ -1,11 +1,12 @@
-﻿import os
+import os
 import zipfile
 import sqlite3
 import pandas as pd
 from pathlib import Path
 
+from backend.app.database import DB_PATH
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DB_PATH = BASE_DIR / "backend" / "data" / "merchant.db"
 ZIP_CANDIDATES = [
     BASE_DIR / "paytm_merchant_demo_dataset.zip",
     BASE_DIR / "backend" / "data" / "paytm_merchant_demo_dataset.zip",
