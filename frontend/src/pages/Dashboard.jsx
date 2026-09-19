@@ -36,7 +36,7 @@ import OfflineState from '../components/common/OfflineState';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { isConnected, checkHealth } = useBackend();
+  const { isConnected, checkHealth, merchantName, merchant } = useBackend();
   const { t, language, speak, isSpeaking, stopSpeaking } = useLanguage();
 
   const [overview, setOverview] = useState(null);
@@ -176,7 +176,7 @@ export default function Dashboard() {
             {t('todaysBusiness')}
           </h3>
           <span className="text-sm text-slate-500 font-semibold">
-            Sharma Tea & General Store (Shop M001)
+            {merchantName} ({merchant?.merchant_id || 'Shop M001'})
           </span>
         </div>
 

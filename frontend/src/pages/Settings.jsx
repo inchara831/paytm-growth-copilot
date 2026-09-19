@@ -16,7 +16,15 @@ import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 
 export default function Settings() {
-  const { isConnected, healthData, isLoading, checkHealth } = useBackend();
+  const {
+    isConnected,
+    healthData,
+    isLoading,
+    checkHealth,
+    merchant,
+    merchantName,
+    setMerchantName,
+  } = useBackend();
   const {
     language,
     setLanguage,
@@ -154,26 +162,89 @@ export default function Settings() {
         </div>
       </Card>
 
-      {/* Shop Profile */}
-      <Card title="Shop Information" subtitle="Current registered merchant profile">
-        <div className="space-y-3 text-xs">
-          <div className="flex justify-between py-2 border-b border-slate-100">
-            <span className="text-slate-500">Shop Name:</span>
-            <span className="font-bold text-slate-800">{t('shopName')}</span>
+      {/* Shop Profile & Name Switcher */}
+      <Card title="Shop Profile & Business Details" subtitle="Current registered merchant profile from database">
+        <div className="space-y-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-3 border-b border-slate-100">
+            <div>
+              <span className="text-slate-400 block text-[11px] font-semibold">Active Shop Name</span>
+              <span className="font-bold text-sm text-[#002970]">{merchantName}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block text-[11px] font-semibold">Merchant ID</span>
+              <span className="font-mono font-bold text-slate-800">{merchant?.merchant_id || 'M001'}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block text-[11px] font-semibold">Business Type</span>
+              <span className="font-semibold text-slate-700">{merchant?.business_type || 'Tea & Snacks Shop'}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block text-[11px] font-semibold">Location</span>
+              <span className="font-semibold text-slate-700">{merchant?.area || 'BTM Layout'}, {merchant?.city || 'Bengaluru'}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block text-[11px] font-semibold">Connected Transactions</span>
+              <span className="font-semibold text-emerald-700">
+                {healthData?.transactions ? Number(healthData.transactions).toLocaleString('en-IN') : '6,191'} records
+              </span>
+            </div>
+            <div>
+              <span className="text-slate-400 block text-[11px] font-semibold">API Endpoint</span>
+              <code className="text-[#002970] font-mono text-[11px]">{apiBaseUrl}</code>
+            </div>
           </div>
-          <div className="flex justify-between py-2 border-b border-slate-100">
-            <span className="text-slate-500">Merchant ID:</span>
-            <span className="font-mono font-bold text-slate-800">{t('shopId')}</span>
-          </div>
-          <div className="flex justify-between py-2 border-b border-slate-100">
-            <span className="text-slate-500">Connected Records:</span>
-            <span className="font-semibold text-slate-800">
-              {healthData?.transactions ? Number(healthData.transactions).toLocaleString('en-IN') : 'Loading...'} transactions
-            </span>
-          </div>
-          <div className="flex justify-between py-2 border-b border-slate-100">
-            <span className="text-slate-500">API Endpoint:</span>
-            <code className="text-[#002970] font-mono">{apiBaseUrl}</code>
+
+          {/* Demo Merchant Name Switcher */}
+          <div className="pt-2">
+            <label className="block text-xs font-bold text-slate-800 mb-2">
+              🏪 Demo Merchant Switcher (Test Dynamic Shop Name)
+            </label>
+            <p className="text-[11px] text-slate-500 mb-3">
+              Click a preset below or type a custom shop name to verify dynamic updates across the Header, Sidebar, Footer, Products, and Ask Copilot AI:
+            </p>
+
+            <div className="flex flex-wrap gap-2 mb-3">
+              {[
+                'Sri Lakshmi Tea & Snacks',
+                "Sharma's Shop",
+                "Ramesh's Shop",
+                "Priya's Shop",
+                'Chai Point Cafe',
+              ].map((name) => {
+                const isActive = merchantName === name;
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => setMerchantName(name)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-[#002970] text-white shadow-sm ring-2 ring-[#002970]/30'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
+                    }`}
+                  >
+                    {name}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter custom shop name..."
+                value={merchantName}
+                onChange={(e) => setMerchantName(e.target.value)}
+                className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#002970]"
+              />
+              <button
+                type="button"
+                onClick={() => setMerchantName(merchant?.merchant_name || 'Sri Lakshmi Tea & Snacks')}
+                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition-colors shrink-0"
+              >
+                Reset Default
+              </button>
+            </div>
           </div>
         </div>
       </Card>

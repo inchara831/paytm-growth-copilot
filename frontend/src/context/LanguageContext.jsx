@@ -163,13 +163,13 @@ export function LanguageProvider({ children }) {
         const code = targetConfig.code.toLowerCase();
         const bcp = targetConfig.bcp47.toLowerCase();
 
-        // Strict priority 1: exact BCP-47 tag (e.g., 'kn-IN' or 'hi-IN')
+        // Priority 1: exact BCP-47 tag (e.g., 'kn-IN', 'hi-IN', 'ta-IN')
         matchingVoice = currentVoices.find((v) => {
           const vLang = (v.lang || '').replace('_', '-').toLowerCase();
           return vLang === bcp;
         });
 
-        // Priority 2: starts with prefix (e.g., 'kn-' or 'hi-')
+        // Priority 2: starts with language prefix (e.g., 'kn-', 'hi-', 'ta-')
         if (!matchingVoice) {
           matchingVoice = currentVoices.find((v) => {
             const vLang = (v.lang || '').replace('_', '-').toLowerCase();
@@ -177,7 +177,7 @@ export function LanguageProvider({ children }) {
           });
         }
 
-        // Priority 3: language code matches or voice name contains language
+        // Priority 3: language code matches or voice name contains language name
         if (!matchingVoice) {
           matchingVoice = currentVoices.find((v) => {
             const vLang = (v.lang || '').replace('_', '-').toLowerCase();
@@ -189,44 +189,23 @@ export function LanguageProvider({ children }) {
             );
           });
         }
+
+        // Fallback: If no native regional voice is present on device, use best available Indian voice or default
+        if (!matchingVoice) {
+          matchingVoice = currentVoices.find((v) => {
+            const vLang = (v.lang || '').replace('_', '-').toLowerCase();
+            return vLang.includes('in') || vLang.startsWith('en-in') || vLang.startsWith('hi');
+          });
+        }
       }
-
-      // CRITICAL RULE: NEVER speak English when another language is selected!
-      if (targetLang !== 'en' && !matchingVoice) {
-        // Voice is unavailable on this device/browser
-        setIsSpeaking(false);
-        setSpeakingText('');
-        const msg = `Voice for ${targetConfig.nativeName} (${targetConfig.name} - ${targetConfig.bcp47}) is not installed on this device/browser. The translated text is shown on screen. (To enable voice, install the ${targetConfig.name} speech pack in system settings or use Google Chrome).`;
-        setVoiceNotice({
-          message: msg,
-          lang: targetLang,
-          nativeName: targetConfig.nativeName,
-        });
-
-        // Auto-dismiss notice after 8 seconds
-        setTimeout(() => {
-          setVoiceNotice((curr) => (curr?.lang === targetLang ? null : curr));
-        }, 8000);
-
-        return;
-      }
-
-      // Voice is available or English fallback for English only
-      setVoiceNotice(null);
 
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       utterance.lang = targetConfig.bcp47;
-      utterance.rate = 0.92; // Clear, measured pace for shop environments
+      utterance.rate = 0.92; // Measured pace for shop environments
       utterance.pitch = 1.0;
 
       if (matchingVoice) {
         utterance.voice = matchingVoice;
-      } else if (targetLang === 'en') {
-        // Only allow fallback to an Indian English voice if English was selected
-        const indianVoice = currentVoices.find(
-          (v) => (v.lang || '').replace('_', '-').toLowerCase() === 'en-in'
-        );
-        if (indianVoice) utterance.voice = indianVoice;
       }
 
       utterance.onstart = () => {

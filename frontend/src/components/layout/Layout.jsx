@@ -3,7 +3,9 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import ProactiveBusinessAlert from '../ProactiveBusinessAlert';
+import AskCopilot from '../AskCopilot';
 import { useLanguage } from '../../context/LanguageContext';
+import { useBackend } from '../../context/BackendContext';
 import apiService from '../../services/api';
 import { getLocalizedInsights } from '../../services/translations';
 import { AlertCircle, X } from 'lucide-react';
@@ -11,8 +13,10 @@ import { AlertCircle, X } from 'lucide-react';
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [topAlertInsight, setTopAlertInsight] = useState(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const location = useLocation();
   const { t, language, voiceNotice, dismissVoiceNotice } = useLanguage();
+  const { merchantName } = useBackend();
 
   useEffect(() => {
     async function loadAlertInsight() {
@@ -37,7 +41,7 @@ export default function Layout() {
     switch (location.pathname) {
       case '/':
         return {
-          title: t('navYourShop'),
+          title: merchantName,
           subtitle: t('todaysBusinessSub'),
         };
       case '/copilot':
@@ -83,7 +87,11 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onOpenChat={() => setIsChatOpen(true)}
+      />
       
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         <Header
@@ -117,7 +125,7 @@ export default function Layout() {
 
         <footer className="py-4 px-6 border-t border-slate-200 bg-white text-center text-xs text-slate-400">
           <p>
-            {t('appName')} {t('appSubname')} • {t('shopName')} • "{t('tagline')}"
+            {t('appName')} {t('appSubname')} • {merchantName} • "{t('tagline')}"
           </p>
         </footer>
       </div>
@@ -129,6 +137,13 @@ export default function Layout() {
           onDismiss={() => setTopAlertInsight(null)}
         />
       )}
+
+      {/* Ask Copilot Merchant AI Chatbot */}
+      <AskCopilot
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        onOpen={() => setIsChatOpen(true)}
+      />
     </div>
   );
 }

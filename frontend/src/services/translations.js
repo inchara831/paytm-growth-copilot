@@ -125,6 +125,20 @@ export const translations = {
     takeAction: "Take Action",
     closeModal: "Close",
     
+    // Ask Copilot AI Chatbot
+    askCopilot: "Ask Copilot",
+    askCopilotSub: "Your AI Business Assistant",
+    askCopilotWelcome: "Welcome to Ask Copilot!",
+    askCopilotWelcomeSub: "Ask me anything about your shop's sales, profit, best-selling products, or recommended offers.",
+    askCopilotPlaceholder: "Ask anything about your shop in simple words...",
+    tapQuestionPrompt: "Tap a question to ask:",
+    onlineStatus: "Online",
+    copilotAnalyzing: "Copilot is analyzing your shop records...",
+    bestSellersChip: "🔥 Best Sellers",
+    attentionChip: "⚠️ Attention Items",
+    afternoonChip: "⏰ Afternoon Sales",
+    clearChat: "Clear conversation",
+
     // Voice
     voiceTestSample: "Welcome to Paytm Merchant Assistant. No prompts, just profits.",
     voiceUnavailable: "Voice synthesis for this language is not installed on your device/browser. Text is displayed on screen.",
@@ -249,6 +263,20 @@ export const translations = {
     takeAction: "कार्रवाई करें",
     closeModal: "बंद करें",
     
+    // Ask Copilot AI Chatbot
+    askCopilot: "आस्क कोपायलट",
+    askCopilotSub: "आपका AI बिज़नेस साथी",
+    askCopilotWelcome: "आस्क कोपायलट में आपका स्वागत है!",
+    askCopilotWelcomeSub: "अपनी दुकान की बिक्री, मुनाफ़ा, सबसे ज़्यादा बिकने वाले सामान या ऑफ़र के बारे में कुछ भी पूछें।",
+    askCopilotPlaceholder: "अपनी दुकान के बारे में आसान शब्दों में पूछें...",
+    tapQuestionPrompt: "पूछने के लिए किसी सवाल पर टैप करें:",
+    onlineStatus: "ऑनलाइन",
+    copilotAnalyzing: "कोपायलट आपकी दुकान के रिकॉर्ड की जांच कर रहा है...",
+    bestSellersChip: "🔥 सबसे ज़्यादा बिकने वाले",
+    attentionChip: "⚠️ ध्यान देने योग्य सामान",
+    afternoonChip: "⏰ दोपहर की बिक्री",
+    clearChat: "बातचीत साफ़ करें",
+
     // Voice
     voiceTestSample: "पेटीएम मर्चेंट बिज़नेस साथी में आपका स्वागत है। कोई झंझट नहीं, सिर्फ़ मुनाफ़ा।",
     voiceUnavailable: "आपके डिवाइस या ब्राउज़र में हिंदी आवाज़ (hi-IN) उपलब्ध नहीं है। स्क्रीन पर लिखा अनुवाद दिखाया जा रहा है।",
@@ -373,6 +401,20 @@ export const translations = {
     takeAction: "ಕ್ರಮ ಕೈಗೊಳ್ಳಿ",
     closeModal: "ಮುಚ್ಚಿ",
     
+    // Ask Copilot AI Chatbot
+    askCopilot: "ಆಸ್ಕ್ ಕೋಪೈಲಟ್",
+    askCopilotSub: "ನಿಮ್ಮ AI ವ್ಯಾಪಾರ ಸಹಾಯಕ",
+    askCopilotWelcome: "ಆಸ್ಕ್ ಕೋಪೈಲಟ್‌ಗೆ ಸುಸ್ವಾಗತ!",
+    askCopilotWelcomeSub: "ನಿಮ್ಮ ಅಂಗಡಿಯ ಮಾರಾಟ, ಲಾಭ, ಹೆಚ್ಚು ಮಾರಾಟವಾಗುವ ಸರಕುಗಳು ಅಥವಾ ಶಿಫಾರಸು ಮಾಡಿದ ಆಫರ್‌ಗಳ ಬಗ್ಗೆ ಏನನ್ನಾದರೂ ಕೇಳಿ.",
+    askCopilotPlaceholder: "ನಿಮ್ಮ ಅಂಗಡಿಯ ಬಗ್ಗೆ ಸರಳ ಪದಗಳಲ್ಲಿ ಕೇಳಿ...",
+    tapQuestionPrompt: "ಕೇಳಲು ಪ್ರಶ್ನೆಯ ಮೇಲೆ ಟ್ಯಾಪ್ ಮಾಡಿ:",
+    onlineStatus: "ಆನ್‌ಲೈನ್",
+    copilotAnalyzing: "ಕೋಪೈಲಟ್ ನಿಮ್ಮ ಅಂಗಡಿಯ ದಾಖಲೆಗಳನ್ನು ವಿಶ್ಲೇಷಿಸುತ್ತಿದೆ...",
+    bestSellersChip: "🔥 ಹೆಚ್ಚು ಮಾರಾಟವಾದವು",
+    attentionChip: "⚠️ ಗಮನಿಸಬೇಕಾದ ಸರಕುಗಳು",
+    afternoonChip: "⏰ ಮಧ್ಯಾಹ್ನದ ಮಾರಾಟ",
+    clearChat: "ಸಂಭಾಷಣೆ ತೆರವುಗೊಳಿಸಿ",
+
     // Voice
     voiceTestSample: "ಪೇಟಿಎಂ ಮರ್ಚೆಂಟ್ ವ್ಯಾಪಾರ ಸಹಾಯಕಕ್ಕೆ ಸುಸ್ವಾಗತ. ಯಾವುದೇ ಗೊಂದಲವಿಲ್ಲ, ಕೇವಲ ಲಾಭ.",
     voiceUnavailable: "ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಕನ್ನಡ ಧ್ವನಿ (kn-IN) ಲಭ್ಯವಿಲ್ಲ. ಪರದೆಯ ಮೇಲೆ ಕನ್ನಡ ಪಠ್ಯವನ್ನು ತೋರಿಸಲಾಗಿದೆ.",
@@ -497,6 +539,20 @@ export const translations = {
     takeAction: "தொடங்கவும்",
     closeModal: "மூடவும்",
     
+    // Ask Copilot AI Chatbot
+    askCopilot: "ஆஸ்க் கோபைலட்",
+    askCopilotSub: "உங்கள் AI வணிக உதவியாளர்",
+    askCopilotWelcome: "ஆஸ்க் கோபைலட்டுக்கு நல்வரவு!",
+    askCopilotWelcomeSub: "உங்கள் கடையின் விற்பனை, லாபம், அதிகம் விற்பனையாகும் பொருட்கள் அல்லது சலுகைகள் பற்றி எது வேண்டுமானாலும் கேளுங்கள்.",
+    askCopilotPlaceholder: "உங்கள் கடையைப் பற்றி எளிய சொற்களில் கேளுங்கள்...",
+    tapQuestionPrompt: "கேட்க ஒரு கேள்வியைத் தட்டவும்:",
+    onlineStatus: "ஆன்லைன்",
+    copilotAnalyzing: "கோபைಲட் உங்கள் கடையின் பதிவுகளை ஆய்வு செய்கிறது...",
+    bestSellersChip: "🔥 அதிகம் விற்பனையானவை",
+    attentionChip: "⚠️ கவனிக்க வேண்டியவை",
+    afternoonChip: "⏰ மதிய விற்பனை",
+    clearChat: "உரையாடலை அழிக்கவும்",
+
     // Voice
     voiceTestSample: "பேடிஎம் வணிகர் வர்த்தக உதவியாளருக்கு நல்வரவு. கேள்விகள் இல்லை, லாபம் மட்டுமே.",
     voiceUnavailable: "உங்கள் சாதனத்தில் தமிழ் குரல் (ta-IN) இல்லை. திரையில் தமிழ் உரை காட்டப்பட்டுள்ளது.",
@@ -621,6 +677,20 @@ export const translations = {
     takeAction: "ప్రారంభించండి",
     closeModal: "మూసివేయి",
     
+    // Ask Copilot AI Chatbot
+    askCopilot: "ఆస్క్ కోపైలట్",
+    askCopilotSub: "మీ AI వ్యాపార సహాయకుడు",
+    askCopilotWelcome: "ఆస్క్ కోపైలట్‌కు స్వాగతం!",
+    askCopilotWelcomeSub: "మీ దుకాణం అమ్మకాలు, లాభం, ఎక్కువగా అమ్ముడయ్యే వస్తువులు లేదా ఆఫర్ల గురించి ఏదైనా అడగండి.",
+    askCopilotPlaceholder: "మీ దుకాణం గురించి సాధారణ పదాలలో అడగండి...",
+    tapQuestionPrompt: "అడగడానికి ఒక ప్రశ్నను ఎంచుకోండి:",
+    onlineStatus: "ఆన్‌లైన్",
+    copilotAnalyzing: "కోపైలట్ మీ దుకాణ రికార్డులను విశ్లేషిస్తోంది...",
+    bestSellersChip: "🔥 బెస్ట్ సెల్లర్లు",
+    attentionChip: "⚠️ శ్రద్ధ వహించాల్సినవి",
+    afternoonChip: "⏰ మధ్యాహ్నం అమ్మకాలు",
+    clearChat: "చాట్ క్లియర్ చేయండి",
+
     // Voice
     voiceTestSample: "పేటీఎం మర్చంట్ వ్యాపార సహాయకుడికి స్వాగతం. ప్రశ్నలు లేవు, లాభాలే లాభాలు.",
     voiceUnavailable: "మీ పరికరంలో తెలుగు వాయిస్ (te-IN) లేదు. స్క్రీన్ పై తెలుగు సమాచారం కనిపిస్తోంది.",
@@ -745,6 +815,20 @@ export const translations = {
     takeAction: "നടപ്പിലാക്കുക",
     closeModal: "അടയ്ക്കുക",
     
+    // Ask Copilot AI Chatbot
+    askCopilot: "ആസ്ക് കോപൈലറ്റ്",
+    askCopilotSub: "നിങ്ങളുടെ AI ബിസിനസ്സ് അസിസ്റ്റന്റ്",
+    askCopilotWelcome: "ആസ്ക് കോപൈലറ്റിലേക്ക് സ്വാഗതം!",
+    askCopilotWelcomeSub: "നിങ്ങളുടെ കടയിലെ വിൽപ്പന, ലാഭം, ഏറ്റവും കൂടുതൽ വിറ്റഴിക്കപ്പെടുന്ന സാധനങ്ങൾ അല്ലെങ്കിൽ ഓഫറുകൾ എന്നിവയെക്കുറിച്ച് എന്തും ചോദിക്കാം.",
+    askCopilotPlaceholder: "നിങ്ങളുടെ കടയെക്കുറിച്ച് ലളിതമായ വാക്കുകളിൽ ചോദിക്കൂ...",
+    tapQuestionPrompt: "ചോദിക്കാൻ ഒരു ചോദ്യത്തിൽ ടാപ്പ് ചെയ്യുക:",
+    onlineStatus: "ഓൺലൈൻ",
+    copilotAnalyzing: "കോപൈലറ്റ് നിങ്ങളുടെ കടയിലെ വിവരങ്ങൾ പരിശോധിക്കുന്നു...",
+    bestSellersChip: "🔥 കൂടുതൽ വിറ്റവ",
+    attentionChip: "⚠️ ശ്രദ്ധിക്കേണ്ടവ",
+    afternoonChip: "⏰ ഉച്ചവിൽപ്പന",
+    clearChat: "ചാറ്റ് മായ്‌ക്കുക",
+
     // Voice
     voiceTestSample: "പേടിഎം മർച്ചന്റ് ബിസിനസ്സ് അസിസ്റ്റന്റിലേക്ക് സ്വാഗതം. ചോദ്യങ്ങളില്ല, ലാഭം മാത്രം.",
     voiceUnavailable: "നിങ്ങളുടെ ഫോണിൽ മലയാളം വോയ്‌സ് (ml-IN) ലഭ്യമല്ല. എഴുതിയ വിവരങ്ങൾ സ്ക്രീനിൽ കാണാം.",
@@ -869,6 +953,20 @@ export const translations = {
     takeAction: "सुरू करा",
     closeModal: "बंद करा",
     
+    // Ask Copilot AI Chatbot
+    askCopilot: "आस्क कोपायलट",
+    askCopilotSub: "तुमचा AI बिझनेस साथी",
+    askCopilotWelcome: "आस्क कोपायलटमध्ये स्वागत आहे!",
+    askCopilotWelcomeSub: "तुमच्या दुकानाची विक्री, नफा, सर्वाधिक विकल्या जाणाऱ्या वस्तू किंवा ऑफर्सबद्दल काहीही विचारा.",
+    askCopilotPlaceholder: "तुमच्या दुकानाबद्दल सोप्या शब्दांत विचारा...",
+    tapQuestionPrompt: "विचारण्यासाठी प्रश्नावर टॅप करा:",
+    onlineStatus: "ऑनलाइन",
+    copilotAnalyzing: "कोपायलट तुमच्या दुकानाची माहिती तपासत आहे...",
+    bestSellersChip: "🔥 सर्वाधिक खपाचे",
+    attentionChip: "⚠️ लक्ष देण्यासारख्या वस्तू",
+    afternoonChip: "⏰ दुपारची विक्री",
+    clearChat: "संभाषण साफ करा",
+
     // Voice
     voiceTestSample: "पेटीएम मर्चंट बिझनेस साथीमध्ये आपले स्वागत आहे. कोणतीही अडचण नाही, फक्त नफा.",
     voiceUnavailable: "तुमच्या उपकरणावर मराठी आवाज (mr-IN) उपलब्ध नाही. स्क्रीनवर मराठी मजकूर दिसत आहे.",
@@ -993,6 +1091,20 @@ export const translations = {
     takeAction: "শুরু করুন",
     closeModal: "বন্ধ করুন",
     
+    // Ask Copilot AI Chatbot
+    askCopilot: "আস্ক কোপাইলট",
+    askCopilotSub: "আপনার AI বিজনেস অ্যাসিস্ট্যান্ট",
+    askCopilotWelcome: "আস্ক কোপাইলটে স্বাগতম!",
+    askCopilotWelcomeSub: "আপনার দোকানের বিক্রি, লাভ, সেরা বিক্রিত পণ্য বা অফার সম্পর্কে যা খুশি জিজ্ঞেস করুন।",
+    askCopilotPlaceholder: "আপনার দোকান সম্পর্কে সহজ ভাষায় জিজ্ঞেস করুন...",
+    tapQuestionPrompt: "প্রশ্ন করতে একটি প্রশ্নে ট্যাপ করুন:",
+    onlineStatus: "অনলাইন",
+    copilotAnalyzing: "কোপাইলট আপনার দোকানের রেকর্ড বিশ্লেষণ করছে...",
+    bestSellersChip: "🔥 সেরা বিক্রিত",
+    attentionChip: "⚠️ যেসব পণ্যে নজর দরকার",
+    afternoonChip: "⏰ দুপুরের বিক্রি",
+    clearChat: "কথোপকথন মুছুন",
+
     // Voice
     voiceTestSample: "পেটিএম মার্চেন্ট বিজনেস অ্যাসিস্ট্যান্টে স্বাগতম। কোনো ঝামেলা নেই, শুধুই লাভ।",
     voiceUnavailable: "আপনার ডিভাইসে বাংলা ভয়েস (bn-IN) নেই। স্ক্রিনে তথ্য বাংলায় দেখানো হচ্ছে।",

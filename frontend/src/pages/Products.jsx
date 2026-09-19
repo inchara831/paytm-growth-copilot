@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import apiService from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { useBackend } from '../context/BackendContext';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -22,6 +23,7 @@ import OfflineState from '../components/common/OfflineState';
 export default function Products() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { merchantName } = useBackend();
 
   const [allProducts, setAllProducts] = useState([]);
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'best' | 'attention'

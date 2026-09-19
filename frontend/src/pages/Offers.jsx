@@ -175,57 +175,123 @@ export default function Offers() {
         </Alert>
       )}
 
-      {/* 1. SUGGESTED OFFERS FOR YOU */}
+      {/* 1. ATTENTION-GRABBING SUGGESTED OFFERS FOR YOU */}
       <Card
-        title={t('suggestedOffers')}
+        title={
+          <div className="flex items-center gap-2">
+            <span>🎁</span>
+            <span>{t('suggestedOffers')}</span>
+          </div>
+        }
         subtitle={t('suggestedOffersSub')}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {suggestedOffers.map((sug) => (
-            <div
-              key={sug.id}
-              className="p-5 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold text-[#002970] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                    Suggested Combo
-                  </span>
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    +{sug.expected_extra_profit_display}
-                  </span>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {suggestedOffers.map((sug, idx) => {
+            const isFirst = idx === 0;
+            const isSecond = idx === 1;
 
-                <h4 className="text-sm font-bold text-slate-900 mb-1">
-                  {sug.product_bundle}
-                </h4>
+            const badgeTag = isFirst
+              ? '🔥 Try This Today'
+              : isSecond
+              ? '🎁 Special Bundle'
+              : '⭐ Morning Special';
 
-                <div className="space-y-1 text-xs text-slate-600 my-2">
-                  <p className="flex justify-between">
-                    <span className="text-slate-400">Offer Price:</span>
-                    <span className="font-bold text-slate-800">{sug.offer_price}</span>
-                  </p>
-                  <p className="flex justify-between">
-                    <span className="text-slate-400">Best Time:</span>
-                    <span className="font-semibold text-slate-800">{sug.best_time}</span>
-                  </p>
-                </div>
+            const tagColor = isFirst
+              ? 'bg-rose-50 text-rose-700 border-rose-200'
+              : isSecond
+              ? 'bg-purple-50 text-purple-700 border-purple-200'
+              : 'bg-amber-50 text-amber-700 border-amber-200';
 
-                <div className="p-2.5 bg-slate-50 rounded-xl text-[11px] text-slate-600 mt-2 mb-4 leading-relaxed">
-                  <strong className="text-slate-700">Why: </strong>
-                  {sug.reason}
-                </div>
-              </div>
+            const cardBorder = isFirst
+              ? 'border-2 border-[#00b9f1] ring-4 ring-[#00b9f1]/15 shadow-md'
+              : isSecond
+              ? 'border-2 border-emerald-400 ring-4 ring-emerald-400/15 shadow-md'
+              : 'border-2 border-amber-400 ring-4 ring-amber-400/15 shadow-md';
 
-              <button
-                onClick={() => handleActivateSuggested(sug)}
-                className="w-full py-2 px-3 bg-[#002970] hover:bg-[#00225c] text-white text-xs font-bold rounded-xl transition-colors text-center flex items-center justify-center gap-1.5 shadow-sm"
+            const itemEmoji = isFirst ? '☕' : isSecond ? '⚡' : '🥐';
+
+            return (
+              <div
+                key={sug.id}
+                className={`p-5 rounded-3xl bg-white transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between relative overflow-hidden ${cardBorder}`}
               >
-                <Plus className="w-3.5 h-3.5 text-[#00b9f1]" />
-                {t('activateOffer')}
-              </button>
-            </div>
-          ))}
+                {/* Top gradient highlight stripe */}
+                <div
+                  className={`absolute top-0 left-0 right-0 h-1.5 ${
+                    isFirst
+                      ? 'bg-gradient-to-r from-[#00b9f1] to-[#002970]'
+                      : isSecond
+                      ? 'bg-gradient-to-r from-emerald-400 to-teal-600'
+                      : 'bg-gradient-to-r from-amber-400 to-orange-500'
+                  }`}
+                />
+
+                <div>
+                  {/* Top Badges */}
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <span
+                      className={`text-xs font-black px-2.5 py-1 rounded-xl border flex items-center gap-1 shadow-xs ${tagColor}`}
+                    >
+                      <span>{badgeTag}</span>
+                    </span>
+                    <span className="text-xs font-black text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200 shadow-xs">
+                      💰 +{sug.expected_extra_profit_display}
+                    </span>
+                  </div>
+
+                  {/* Bundle Title with Emoji */}
+                  <h4 className="text-base font-extrabold text-slate-900 mb-2 flex items-start gap-1.5 leading-snug">
+                    <span className="text-lg shrink-0">{itemEmoji}</span>
+                    <span>{sug.product_bundle}</span>
+                  </h4>
+
+                  {/* Price & Best Time Pills */}
+                  <div className="space-y-1.5 text-xs text-slate-700 my-3 bg-slate-50 p-3 rounded-2xl border border-slate-100 font-semibold">
+                    <p className="flex items-center justify-between">
+                      <span className="text-slate-500 flex items-center gap-1">
+                        <span>🏷️</span> Offer Price:
+                      </span>
+                      <span className="font-extrabold text-slate-900 bg-white px-2 py-0.5 rounded-lg border border-slate-200">
+                        {sug.offer_price}
+                      </span>
+                    </p>
+                    <p className="flex items-center justify-between">
+                      <span className="text-slate-500 flex items-center gap-1">
+                        <span>⏰</span> Best Time:
+                      </span>
+                      <span className="font-bold text-[#002970]">
+                        {sug.best_time}
+                      </span>
+                    </p>
+                  </div>
+
+                  {/* Why it works note */}
+                  <div className="p-3 bg-blue-50/50 rounded-2xl text-[11px] text-slate-700 mb-4 leading-relaxed border border-blue-100 flex items-start gap-2">
+                    <span className="text-xs shrink-0">💡</span>
+                    <span>
+                      <strong className="text-slate-900">Why this works: </strong>
+                      {sug.reason}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Activate Button */}
+                <button
+                  onClick={() => handleActivateSuggested(sug)}
+                  className={`w-full py-2.5 px-4 text-white text-xs font-extrabold rounded-xl transition-all text-center flex items-center justify-center gap-2 shadow-md hover:shadow-lg ${
+                    isFirst
+                      ? 'bg-[#002970] hover:bg-[#00225c]'
+                      : isSecond
+                      ? 'bg-emerald-700 hover:bg-emerald-800'
+                      : 'bg-amber-600 hover:bg-amber-700'
+                  }`}
+                >
+                  <span>⚡</span>
+                  <span>{t('activateOffer')}</span>
+                </button>
+              </div>
+            );
+          })}
         </div>
       </Card>
 

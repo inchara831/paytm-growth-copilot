@@ -42,6 +42,14 @@ def health():
     cat_count = len(query_df("SELECT product_id FROM catalog"))
     cust_count = len(query_df("SELECT customer_id_hash FROM customers"))
     ord_count = len(query_df("SELECT order_id FROM merchant_orders"))
+    m_rows = rows("SELECT * FROM merchants LIMIT 1")
+    m_info = m_rows[0] if m_rows else {
+        "merchant_id": "M001",
+        "merchant_name": "Sri Lakshmi Tea & Snacks",
+        "business_type": "Tea & Snacks Shop",
+        "city": "Bengaluru",
+        "area": "BTM Layout",
+    }
 
     return {
         "status": "ok",
@@ -51,6 +59,22 @@ def health():
         "customers": cust_count,
         "ml_model_status": "trained" if ml_engine.is_trained else "initializing",
         "source": "Paytm synthetic merchant demo dataset (paytm_merchant_demo_dataset.zip)",
+        "merchant": m_info,
+    }
+
+@app.get("/merchant")
+def get_merchant():
+    m_rows = rows("SELECT * FROM merchants LIMIT 1")
+    if m_rows:
+        return m_rows[0]
+    return {
+        "merchant_id": "M001",
+        "merchant_name": "Sri Lakshmi Tea & Snacks",
+        "business_type": "Tea & Snacks Shop",
+        "city": "Bengaluru",
+        "area": "BTM Layout",
+        "merchant_vpa": "srilakshmitea@paytm",
+        "currency": "INR",
     }
 
 # ---------------------------------------------------------

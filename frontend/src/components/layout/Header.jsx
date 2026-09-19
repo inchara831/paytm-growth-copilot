@@ -12,8 +12,24 @@ import {
 } from 'lucide-react';
 
 export default function Header({ onToggleSidebar, title, subtitle }) {
-  const { isConnected, healthData, checkHealth } = useBackend();
+  const { isConnected, healthData, checkHealth, merchantName, merchant } = useBackend();
   const { language, setLanguage, t, isSpeaking, stopSpeaking } = useLanguage();
+
+  const displayTitle =
+    !title || title === t('navYourShop') || title === 'Your Shop'
+      ? merchantName
+      : title;
+
+  // Extract initials from merchantName
+  const initials = merchantName
+    ? merchantName
+        .split(' ')
+        .map((w) => w[0])
+        .filter(Boolean)
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : 'ST';
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
@@ -38,7 +54,7 @@ export default function Header({ onToggleSidebar, title, subtitle }) {
             <div className="h-7 w-px bg-slate-200 hidden sm:block shrink-0" />
             <div>
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight tracking-tight">
-                {title || t('navYourShop')}
+                {displayTitle}
               </h2>
               {subtitle && (
                 <p className="text-sm font-semibold text-slate-500 hidden sm:block">{subtitle}</p>
@@ -109,14 +125,14 @@ export default function Header({ onToggleSidebar, title, subtitle }) {
           {/* Merchant Profile Area */}
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-blue-100 text-[#002970] flex items-center justify-center font-extrabold text-xs border border-blue-200 shrink-0">
-              ST
+              {initials}
             </div>
             <div className="hidden xl:block text-left">
-              <p className="text-sm font-extrabold text-slate-900 truncate max-w-[150px]">
-                {t('shopName')}
+              <p className="text-sm font-extrabold text-slate-900 truncate max-w-[170px]" title={merchantName}>
+                {merchantName}
               </p>
               <p className="text-xs text-slate-500 font-semibold font-mono">
-                {t('shopId')} • {t('verified')}
+                {merchant?.merchant_id || t('shopId')} • {t('verified')}
               </p>
             </div>
           </div>

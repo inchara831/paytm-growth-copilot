@@ -17,6 +17,12 @@ export const apiService = {
     return res.data;
   },
 
+  // Merchant Profile (Dynamic Shop Info)
+  getMerchant: async () => {
+    const res = await apiClient.get('/merchant');
+    return res.data;
+  },
+
   // Analytics Overview (Revenue, Profit, Transactions, Avg Line Amount)
   getOverview: async () => {
     const res = await apiClient.get('/analytics/overview');
