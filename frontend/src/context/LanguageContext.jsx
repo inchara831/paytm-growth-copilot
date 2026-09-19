@@ -60,6 +60,44 @@ export const LANGUAGE_CONFIG = {
   },
 };
 
+// Helper to find only matching voice for the selected language
+export const findVoiceForLanguage = (voicesList, langCode) => {
+  if (!voicesList || voicesList.length === 0 || !langCode) return null;
+  const config = LANGUAGE_CONFIG[langCode] || LANGUAGE_CONFIG.en;
+  const targetCode = config.code.toLowerCase();
+  const targetBcp = config.bcp47.toLowerCase();
+
+  // 1. Search for an exact match for the selected language code (e.g., 'te-in', 'kn-in', 'hi-in')
+  let match = voicesList.find((v) => {
+    const vLang = (v.lang || '').replace('_', '-').toLowerCase();
+    return vLang === targetBcp;
+  });
+
+  // 2. If an exact match is unavailable, search by the language prefix (e.g., 'te-in' -> 'te')
+  if (!match) {
+    match = voicesList.find((v) => {
+      const vLang = (v.lang || '').replace('_', '-').toLowerCase();
+      return vLang === targetCode || vLang.startsWith(targetCode + '-');
+    });
+  }
+
+  // 3. Select ONLY a voice belonging to the selected language
+  if (match) {
+    const vLang = (match.lang || '').replace('_', '-').toLowerCase();
+    // Never use an English voice for a non-English language
+    if (targetCode !== 'en' && (vLang.startsWith('en') || vLang === 'en')) {
+      return null;
+    }
+    const isMatch = vLang === targetBcp || vLang === targetCode || vLang.startsWith(targetCode + '-');
+    if (!isMatch) {
+      return null;
+    }
+    return match;
+  }
+
+  return null;
+};
+
 const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
@@ -71,7 +109,7 @@ export function LanguageProvider({ children }) {
   const [voiceNotice, setVoiceNotice] = useState(null);
   const [voices, setVoices] = useState([]);
 
-  // Load available speech synthesis voices
+  // Requirement 5: VOICE LOADING - Handle browsers where voices load asynchronously
   useEffect(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
@@ -86,8 +124,14 @@ export function LanguageProvider({ children }) {
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
+    window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+
+    return () => {
+      window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
+    };
   }, []);
 
+  // Requirement 3: LANGUAGE SWITCHING - Update active language, stop speaking, reset voice state
   const setLanguage = (lang) => {
     setLanguageState(lang);
     localStorage.setItem('paytm_merchant_lang', lang);
@@ -115,28 +159,15 @@ export function LanguageProvider({ children }) {
     setVoiceNotice(null);
   }, []);
 
-  // Helper to test if a voice for a specific language is installed on user's device
+  // Helper to test if a genuine matching voice for a specific language is installed on user's device
   const isVoiceAvailable = useCallback(
     (langCode) => {
       if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false;
-      const targetConfig = LANGUAGE_CONFIG[langCode] || LANGUAGE_CONFIG.en;
-      const currentVoices = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
-      if (!currentVoices || currentVoices.length === 0) return false;
-
-      const code = targetConfig.code.toLowerCase();
-      const bcp = targetConfig.bcp47.toLowerCase();
-
-      return currentVoices.some((v) => {
-        const vLang = (v.lang || '').replace('_', '-').toLowerCase();
-        const vName = (v.name || '').toLowerCase();
-        return (
-          vLang === bcp ||
-          vLang.startsWith(code + '-') ||
-          vLang === code ||
-          vName.includes(targetConfig.name.toLowerCase()) ||
-          vName.includes(targetConfig.nativeName)
-        );
-      });
+      const currentVoices =
+        window.speechSynthesis.getVoices().length > 0
+          ? window.speechSynthesis.getVoices()
+          : voices;
+      return !!findVoiceForLanguage(currentVoices, langCode);
     },
     [voices]
   );
@@ -147,66 +178,72 @@ export function LanguageProvider({ children }) {
         return;
       }
 
-      // Stop previous utterance
+      // Requirement 4: RESET SPEECH BEFORE EVERY NEW SPEAK
       window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setSpeakingText('');
 
       const targetLang = langOverride || language;
       const targetConfig = LANGUAGE_CONFIG[targetLang] || LANGUAGE_CONFIG.en;
 
-      // Get latest voices
+      // Requirement 5: VOICE LOADING
+      // Ensure we get latest voices from speechSynthesis
       const currentVoices =
-        voices.length > 0 ? voices : window.speechSynthesis.getVoices();
+        window.speechSynthesis.getVoices().length > 0
+          ? window.speechSynthesis.getVoices()
+          : voices;
 
-      // Find matching voice strictly
-      let matchingVoice = null;
-      if (currentVoices && currentVoices.length > 0) {
-        const code = targetConfig.code.toLowerCase();
-        const bcp = targetConfig.bcp47.toLowerCase();
+      // Requirement 1: CORRECT VOICE SELECTION
+      // First search for exact match, then by prefix, select ONLY voice belonging to selected language
+      const matchingVoice = findVoiceForLanguage(currentVoices, targetLang);
 
-        // Priority 1: exact BCP-47 tag (e.g., 'kn-IN', 'hi-IN', 'ta-IN')
-        matchingVoice = currentVoices.find((v) => {
-          const vLang = (v.lang || '').replace('_', '-').toLowerCase();
-          return vLang === bcp;
+      // Requirement 8: DEBUG DURING DEVELOPMENT
+      console.log('Selected language:', targetLang);
+      console.log('Selected language code:', targetConfig.bcp47);
+      console.log('Matching voice:', matchingVoice ? matchingVoice.name : 'None found');
+      console.log('Voice name:', matchingVoice ? matchingVoice.name : 'N/A');
+      console.log('Voice language:', matchingVoice ? matchingVoice.lang : 'N/A');
+
+      // Requirement 2 & 6: VALIDATE BEFORE SPEAKING & NO ENGLISH FALLBACK
+      if (!matchingVoice) {
+        setVoiceNotice({
+          message: `${targetConfig.name} voice is not available on this device/browser.`,
         });
-
-        // Priority 2: starts with language prefix (e.g., 'kn-', 'hi-', 'ta-')
-        if (!matchingVoice) {
-          matchingVoice = currentVoices.find((v) => {
-            const vLang = (v.lang || '').replace('_', '-').toLowerCase();
-            return vLang.startsWith(code + '-');
-          });
-        }
-
-        // Priority 3: language code matches or voice name contains language name
-        if (!matchingVoice) {
-          matchingVoice = currentVoices.find((v) => {
-            const vLang = (v.lang || '').replace('_', '-').toLowerCase();
-            const vName = (v.name || '').toLowerCase();
-            return (
-              vLang === code ||
-              vName.includes(targetConfig.name.toLowerCase()) ||
-              vName.includes(targetConfig.nativeName)
-            );
-          });
-        }
-
-        // Fallback: If no native regional voice is present on device, use best available Indian voice or default
-        if (!matchingVoice) {
-          matchingVoice = currentVoices.find((v) => {
-            const vLang = (v.lang || '').replace('_', '-').toLowerCase();
-            return vLang.includes('in') || vLang.startsWith('en-in') || vLang.startsWith('hi');
-          });
-        }
+        return;
       }
 
+      const voiceLang = (matchingVoice.lang || '').replace('_', '-').toLowerCase();
+      const targetCode = targetConfig.code.toLowerCase();
+      const targetBcp = targetConfig.bcp47.toLowerCase();
+
+      // Never use an English voice for a non-English language
+      if (targetCode !== 'en' && (voiceLang.startsWith('en') || voiceLang === 'en')) {
+        console.warn(`Voice validation failed: Attempted to use English voice for ${targetConfig.name}`);
+        setVoiceNotice({
+          message: `${targetConfig.name} voice is not available on this device/browser.`,
+        });
+        return;
+      }
+
+      // Verify that voiceLang actually matches requested language
+      const isMatch = voiceLang === targetBcp || voiceLang === targetCode || voiceLang.startsWith(targetCode + '-');
+      if (!isMatch) {
+        console.warn(`Voice validation failed: Voice language (${matchingVoice.lang}) does not match requested ${targetConfig.bcp47}`);
+        setVoiceNotice({
+          message: `${targetConfig.name} voice is not available on this device/browser.`,
+        });
+        return;
+      }
+
+      // Clear previous voice notice when valid voice is found
+      setVoiceNotice(null);
+
+      // Set BOTH utterance.lang and utterance.voice
       const utterance = new SpeechSynthesisUtterance(textToSpeak);
       utterance.lang = targetConfig.bcp47;
+      utterance.voice = matchingVoice;
       utterance.rate = 0.92; // Measured pace for shop environments
       utterance.pitch = 1.0;
-
-      if (matchingVoice) {
-        utterance.voice = matchingVoice;
-      }
 
       utterance.onstart = () => {
         setIsSpeaking(true);
