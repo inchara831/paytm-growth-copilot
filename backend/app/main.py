@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, List, Any, Optional
@@ -83,9 +84,10 @@ def copilot_chat(payload: Dict[str, Any] = Body(...)):
     message = payload.get("message", "").strip()
     history = payload.get("conversation_history") or payload.get("history") or []
     language = payload.get("language", "auto")
+    api_key = payload.get("api_key") or os.getenv("GEMINI_API_KEY")
     if not message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
-    return llm_service.chat(message, conversation_history=history, language=language)
+    return llm_service.chat(message, conversation_history=history, language=language, api_key=api_key)
 
 @app.get("/merchant")
 def get_merchant():

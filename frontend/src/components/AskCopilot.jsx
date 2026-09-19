@@ -158,11 +158,15 @@ export default function AskCopilot({ isOpen, onClose, onOpen }) {
         text: m.text,
       }));
 
+      // Check if merchant configured a Gemini API key in Settings (stored in localStorage)
+      const storedKey = localStorage.getItem('paytm_gemini_api_key');
+
       // Call REAL backend LLM endpoint with verified analytics and Cognee memory
       const response = await apiService.chatCopilot({
         message: query,
         conversation_history: historyPayload,
         language: 'auto', // Let backend auto-detect language from user's message
+        api_key: storedKey ? storedKey.trim() : undefined,
       });
 
       const botMsg = {

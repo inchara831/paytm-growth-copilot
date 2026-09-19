@@ -11,6 +11,11 @@ import {
   RefreshCw,
   Info,
   AlertTriangle,
+  Key,
+  Eye,
+  EyeOff,
+  Sparkles,
+  Check,
 } from 'lucide-react';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
@@ -36,6 +41,29 @@ export default function Settings() {
     languageConfig,
   } = useLanguage();
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
+  const [geminiApiKey, setGeminiApiKey] = React.useState(() => {
+    return localStorage.getItem('paytm_gemini_api_key') || '';
+  });
+  const [showApiKey, setShowApiKey] = React.useState(false);
+  const [apiKeySaved, setApiKeySaved] = React.useState(false);
+
+  const handleSaveApiKey = () => {
+    if (geminiApiKey.trim()) {
+      localStorage.setItem('paytm_gemini_api_key', geminiApiKey.trim());
+    } else {
+      localStorage.removeItem('paytm_gemini_api_key');
+    }
+    setApiKeySaved(true);
+    setTimeout(() => setApiKeySaved(false), 2500);
+  };
+
+  const handleClearApiKey = () => {
+    setGeminiApiKey('');
+    localStorage.removeItem('paytm_gemini_api_key');
+    setApiKeySaved(true);
+    setTimeout(() => setApiKeySaved(false), 2500);
+  };
 
   const languagesList = [
     { code: 'en', label: 'English', desc: 'Default shop language (en-IN)' },
@@ -279,6 +307,75 @@ export default function Settings() {
           <div>
             <span className="text-slate-400 block text-[11px] font-semibold">Zero-Hallucination Guard</span>
             <span className="font-semibold text-slate-700">Strictly Enforced (Backend Verified)</span>
+          </div>
+        </div>
+
+        {/* Gemini API Key Configuration */}
+        <div className="pt-4 mt-4 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+            <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <Key className="w-3.5 h-3.5 text-[#0083ca]" />
+              <span>Google Gemini API Key (Optional)</span>
+            </label>
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 self-start sm:self-auto ${
+              geminiApiKey
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                : 'bg-blue-50 text-[#002970] border border-blue-200'
+            }`}>
+              <Sparkles className="w-3 h-3 text-[#00b9f1]" />
+              {geminiApiKey ? 'Custom Gemini Key Configured' : 'Using Grounded AI Engine'}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500 mb-3">
+            Add your Google Gemini API key to enable live Gemini 2.5 Flash execution for all questions. If not provided, the Copilot uses our built-in grounded reasoning engine to answer all merchant inquiries.
+          </p>
+
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                placeholder="Paste AIzaSy... API key here"
+                value={geminiApiKey}
+                onChange={(e) => setGeminiApiKey(e.target.value)}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 pr-10 focus:outline-none focus:ring-2 focus:ring-[#002970]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                aria-label={showApiKey ? 'Hide key' : 'Show key'}
+              >
+                {showApiKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSaveApiKey}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#002970] hover:bg-[#00225c] text-white text-xs font-bold rounded-xl transition-colors shrink-0 shadow-sm"
+            >
+              {apiKeySaved ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-[#00b9f1]" />
+                  <span>Save Key</span>
+                </>
+              )}
+            </button>
+
+            {geminiApiKey && (
+              <button
+                type="button"
+                onClick={handleClearApiKey}
+                className="px-3 py-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 text-xs font-bold rounded-xl border border-slate-200 transition-colors shrink-0"
+              >
+                Clear
+              </button>
+            )}
           </div>
         </div>
       </Card>
