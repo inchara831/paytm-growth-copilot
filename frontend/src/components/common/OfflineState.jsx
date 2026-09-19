@@ -1,9 +1,11 @@
 import React from 'react';
 import { WifiOff, RefreshCw, AlertCircle } from 'lucide-react';
 
+const defaultApiUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 export default function OfflineState({
   title = 'Backend Offline',
-  message = 'Unable to connect to the FastAPI backend server at http://127.0.0.1:8000. Please ensure the backend is running.',
+  message = `Unable to connect to the FastAPI backend server at ${defaultApiUrl}. Please ensure the backend is running.`,
   onRetry,
   isRetrying = false,
 }) {

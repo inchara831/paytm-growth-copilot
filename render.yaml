@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: paytm-growth-copilot-api
+    env: python
+    buildCommand: pip install -r requirements.txt && python -c "from backend.app.database import ensure_database; ensure_database()"
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: GEMINI_API_KEY
+        sync: false
