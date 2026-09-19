@@ -94,3 +94,42 @@ def test_n8n_health():
     res = main.n8n_health()
     assert res['status'] == 'ok'
     assert res['orchestration'] == 'n8n-ready'
+
+def test_basket_suggestions():
+    res = main.basket_suggestions()
+    assert 'headline' in res
+    assert 'suggestions' in res
+    assert len(res['suggestions']) > 0
+    assert 'item_a' in res['suggestions'][0]
+    assert 'confidence' in res['suggestions'][0]
+
+def test_products_attention():
+    res = main.products_attention()
+    assert isinstance(res, list)
+    assert len(res) > 0
+    assert 'product_name' in res[0]
+    assert 'quantity' in res[0]
+
+def test_suggested_offers():
+    res = main.suggested_offers()
+    assert isinstance(res, list)
+    assert len(res) > 0
+    assert 'product_bundle' in res[0]
+    assert 'expected_extra_profit' in res[0]
+
+def test_assistant_insights_multilingual():
+    en = main.assistant_insights('en')
+    assert len(en) >= 3
+    assert 'what_is_happening' in en[0]
+    assert 'why_it_matters' in en[0]
+    assert 'what_to_do' in en[0]
+    assert 'expected_extra_profit' in en[0]
+    
+    hi = main.assistant_insights('hi')
+    assert len(hi) >= 3
+    assert 'बिक्री' in hi[0]['what_is_happening']
+    
+    kn = main.assistant_insights('kn')
+    assert len(kn) >= 3
+    assert 'ಮಾರಾಟ' in kn[0]['what_is_happening']
+

@@ -38,20 +38,18 @@ export default function Help() {
         </div>
       </Card>
 
-      {/* ProfitGuard Explanation */}
-      <Card title="How ProfitGuard™ Works" subtitle="Guarding margins against naive discounting">
+      {/* Profit Protection Explanation */}
+      <Card title="How We Protect Your Shop's Profit" subtitle="Ensuring discounts actually make you more money">
         <div className="text-xs text-slate-600 space-y-3 leading-relaxed">
           <p>
-            A 10% discount requires a disproportionately large volume increase just to break even on profit:
+            Giving discounts without calculation can hurt a shop's earnings. A discount requires higher customer volume just to break even on profit.
           </p>
-          <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg font-mono text-[11px] text-slate-800 space-y-1">
-            <p>Baseline Revenue = Price × Quantity</p>
-            <p>Baseline Profit = (Price - Cost) × Quantity</p>
-            <p>Projected Revenue = Price × (1 - Discount) × Quantity × (1 + Demand Lift)</p>
-            <p>Projected Profit = [Price × (1 - Discount) - Cost] × Quantity × (1 + Demand Lift)</p>
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[11px] text-slate-800 space-y-1">
+            <p>Normal Profit = (Selling Price - Item Cost) × Items Sold</p>
+            <p>Discounted Profit = (Discounted Price - Item Cost) × Higher Items Sold</p>
           </div>
           <p>
-            If the reduction in unit profit margin outweighs the demand lift, total profit contracts. ProfitGuard automatically computes this threshold and warns the merchant before launch.
+            Our business assistant checks your numbers in the background to ensure any recommended combo or offer brings in <strong>Expected Extra Profit</strong> rather than reducing your daily take-home earnings.
           </p>
         </div>
       </Card>
@@ -103,12 +101,12 @@ export default function Help() {
               <tr>
                 <td className="py-2 px-3 text-emerald-600 font-bold">GET</td>
                 <td className="py-2 px-3">/opportunities</td>
-                <td className="font-sans text-slate-600">Low-sales hours vs baseline revenue</td>
+                <td className="font-sans text-slate-600">Hours with slow customer sales</td>
               </tr>
               <tr>
                 <td className="py-2 px-3 text-blue-600 font-bold">POST</td>
                 <td className="py-2 px-3">/profitguard/simulate</td>
-                <td className="font-sans text-slate-600">Simulate discount impact on net profit vs revenue</td>
+                <td className="font-sans text-slate-600">Internal calculation of expected extra profit for offers</td>
               </tr>
               <tr>
                 <td className="py-2 px-3 text-emerald-600 font-bold">GET</td>

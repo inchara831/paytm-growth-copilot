@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Compass,
+  Lightbulb,
+  Volume2,
+  VolumeX,
   TrendingUp,
-  ShieldAlert,
-  Package,
-  Globe2,
-  ArrowRight,
-  ShieldCheck,
   Tag,
-  Sparkles,
-  Zap,
-  Info,
   CheckCircle2,
+  AlertCircle,
+  HelpCircle,
+  Plus,
   RefreshCw,
+  Sparkles,
 } from 'lucide-react';
 import apiService from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -23,237 +22,251 @@ import OfflineState from '../components/common/OfflineState';
 
 export default function GrowthCopilot() {
   const navigate = useNavigate();
+  const { t, language, speak, isSpeaking, stopSpeaking, speakingText } = useLanguage();
 
-  const [recommendation, setRecommendation] = useState(null);
-  const [overview, setOverview] = useState(null);
-  const [topProduct, setTopProduct] = useState(null);
-  const [networkTop, setNetworkTop] = useState(null);
-
+  const [insights, setInsights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activatingId, setActivatingId] = useState(null);
+  const [activatedSuccess, setActivatedSuccess] = useState(null);
 
-  const fetchCopilotData = async () => {
+  const fetchInsights = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [recData, overviewData, prodsData, netData] = await Promise.all([
-        apiService.getRecommendation(),
-        apiService.getOverview(),
-        apiService.getProducts(),
-        apiService.getNetworkIntelligence(),
-      ]);
-      setRecommendation(recData);
-      setOverview(overviewData);
-      if (prodsData && prodsData.length > 0) setTopProduct(prodsData[0]);
-      if (netData && netData.length > 0) setNetworkTop(netData[0]);
+      const data = await apiService.getAssistantInsights(language);
+      setInsights(data);
     } catch (err) {
-      console.error('Failed to load Growth Copilot data:', err);
-      setError(err.message || 'Error communicating with backend');
+      console.error('Failed to load copilot insights:', err);
+      setError(err.message || 'Error communicating with assistant engine');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCopilotData();
-  }, []);
+    fetchInsights();
+  }, [language]);
+
+  const handleListen = (item) => {
+    const textToSpeak =
+      item.speech_text ||
+      `${item.what_is_happening}. ${item.what_to_do}. ${item.expected_extra_profit_display}`;
+
+    if (isSpeaking && speakingText === textToSpeak) {
+      stopSpeaking();
+    } else {
+      speak(textToSpeak, language);
+    }
+  };
+
+  const handleActivateOffer = async (item) => {
+    if (!item.suggested_offer) return;
+    setActivatingId(item.id);
+    try {
+      const res = await apiService.createOffer({
+        offer_title: item.suggested_offer.offer_title,
+        offer_type: item.suggested_offer.offer_type || 'combo',
+        discount_pct: item.suggested_offer.discount_pct || 15,
+        target_hours: item.suggested_offer.best_time?.includes('3:00') ? ['15', '16', '17'] : ['08', '09', '10'],
+        expected_extra_profit_display: item.expected_extra_profit_display,
+        description: item.suggested_offer.reason,
+        status: 'active',
+      });
+      if (res) {
+        setActivatedSuccess(item.id);
+        setTimeout(() => {
+          navigate('/offers');
+        }, 1200);
+      }
+    } catch (err) {
+      console.error('Failed to activate offer:', err);
+    } finally {
+      setActivatingId(null);
+    }
+  };
 
   if (loading) {
-    return <LoadingSpinner message="Synthesizing merchant priorities — 'No Prompts. Just Profits.'..." size="lg" />;
+    return <LoadingSpinner message={t('loading')} size="lg" />;
   }
 
   if (error) {
     return (
       <OfflineState
-        title="Copilot Offline"
+        title="Could Not Load Assistant Suggestions"
         message={error}
-        onRetry={fetchCopilotData}
+        onRetry={fetchInsights}
       />
     );
   }
 
-  const hours = recommendation?.context?.hours || [];
-  const baseline = recommendation?.context?.baseline_hourly_revenue || 0;
-
-  const priorities = [
-    {
-      id: 'growth',
-      category: "Biggest Growth Opportunity",
-      badgeVariant: "primary",
-      icon: TrendingUp,
-      title: recommendation?.recommendation || "Improve low-sales hours",
-      insight: `Off-peak sales drop below 70% of store baseline in ${hours.length} operating hours (${hours.map(h => `${h}:00`).join(', ')}).`,
-      whyItMatters: `Store overhead, utilities, and staffing remain fixed during slow hours. Every incremental transaction during off-peak periods flows straight to operating profit.`,
-      expectedImpact: `Closing the gap towards the ₹${Number(baseline).toLocaleString('en-IN', { maximumFractionDigits: 0 })} baseline across these ${hours.length} hours captures substantial dormant revenue.`,
-      actionLabel: "Simulate in ProfitGuard",
-      actionIcon: ShieldCheck,
-      onAction: () => navigate('/profitguard'),
-      secondaryActionLabel: "Create Promo Offer",
-      secondaryAction: () => navigate('/offers?action=create'),
-    },
-    {
-      id: 'profit_risk',
-      category: "Profit Risk Protection",
-      badgeVariant: "danger",
-      icon: ShieldAlert,
-      title: "Margin Leakage on Non-Optimized Discounting",
-      insight: `Simulations confirm that standard 10% discounts on top SKUs reduce net profit unless demand expands by over 25%.`,
-      whyItMatters: `Discounting without testing margin elasticity is the #1 cause of merchant profit erosion. High volume does not guarantee cash flow health.`,
-      expectedImpact: `ProfitGuard simulation prevents accidental profit loss of up to ₹12,661 per promotional cycle on catalog anchors.`,
-      actionLabel: "Open ProfitGuard Simulator",
-      actionIcon: ShieldCheck,
-      onAction: () => navigate('/profitguard'),
-    },
-    {
-      id: 'product',
-      category: "Product & Inventory Driver",
-      badgeVariant: "paytm",
-      icon: Package,
-      title: topProduct ? `Leverage Top Volume Driver (${topProduct.product_name})` : "Anchor Product Momentum",
-      insight: topProduct
-        ? `"${topProduct.product_name}" generated ₹${Number(topProduct.revenue).toLocaleString('en-IN')} across ${topProduct.quantity.toLocaleString('en-IN')} units.`
-        : "A handful of anchor SKUs drive the majority of transaction velocity.",
-      whyItMatters: `High-frequency items act as footfall magnets. Use them as lead anchors in off-peak bundles rather than discounting them standalone.`,
-      expectedImpact: `Increases average transaction value from the current ₹${overview?.avg_line_amount || '21.95'} across companion products.`,
-      actionLabel: "Simulate SKU Margin",
-      actionIcon: ShieldCheck,
-      onAction: () =>
-        topProduct
-          ? navigate(`/profitguard?product_id=${encodeURIComponent(topProduct.product_id)}`)
-          : navigate('/products'),
-    },
-    {
-      id: 'market',
-      category: "Market Signal",
-      badgeVariant: "neutral",
-      icon: Globe2,
-      title: networkTop ? `Regional Market Concentration (${networkTop.location})` : "Regional Velocity Shifts",
-      insight: networkTop
-        ? `Regional cluster "${networkTop.location}" logged ${networkTop.transactions.toLocaleString('en-IN')} transactions totaling ₹${Number(networkTop.revenue).toLocaleString('en-IN', { maximumFractionDigits: 0 })}.`
-        : "Macro regional patterns reveal distinct buyer concentration pockets.",
-      whyItMatters: `Merchant network telemetry enables proactive distribution rather than reactive restocking.`,
-      expectedImpact: `Prioritize stock allocation to high-converting corridors to minimize out-of-stock bounce rates.`,
-      actionLabel: "View Network Intelligence",
-      actionIcon: ArrowRight,
-      onAction: () => navigate('/network'),
-    },
-  ];
-
   return (
-    <div className="space-y-6">
-      {/* Philosophy Header Banner */}
-      <div className="bg-gradient-to-r from-[#002970] to-[#003896] text-white rounded-xl p-6 shadow-elevated border border-blue-900 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 max-w-5xl">
+      {/* Header Banner */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-card flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="p-1.5 rounded-lg bg-[#00b9f1]/20 text-[#00b9f1] border border-[#00b9f1]/30">
-              <Compass className="w-5 h-5" />
+          <div className="flex items-center gap-2 mb-1">
+            <span className="p-1.5 rounded-lg bg-blue-50 text-[#002970]">
+              <Sparkles className="w-5 h-5 text-[#0083ca]" />
             </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#00b9f1]">
-              Autonomous Decision Engine
+            <span className="text-xs font-bold uppercase tracking-wider text-[#002970]">
+              {t('appName')} {t('appSubname')}
             </span>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight">Paytm Merchant Growth Copilot</h2>
-          <p className="text-xs text-blue-200 mt-1 max-w-xl">
-            <strong>"No Prompts. Just Profits."</strong> You don't need to ask questions or prompt a chatbot. The copilot continuously monitors your backend transactions and tells you what requires your immediate focus.
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            {t('navWhatYouCanDo')}
+          </h2>
+          <p className="text-xs text-slate-500 mt-1 max-w-xl">
+            {t('copilotSub')}
           </p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-right shrink-0">
-          <p className="text-[10px] uppercase font-bold text-blue-200">Decision Engine</p>
-          <p className="text-xs font-semibold text-white mt-0.5">
-            {recommendation?.engine || 'Deterministic Analytics Fallback'}
-          </p>
-          <p className="text-[10px] text-blue-200 mt-0.5">Zero API keys / Zero prompt tokens required</p>
-        </div>
+        <button
+          onClick={fetchInsights}
+          className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors self-start md:self-auto"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          Refresh
+        </button>
       </div>
 
-      {/* TODAY'S PRIORITIES Section */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-[#002970]" />
-            <h3 className="text-base font-bold text-slate-900 tracking-tight uppercase">
-              Today's Priorities
-            </h3>
-          </div>
-          <span className="text-xs text-slate-500">
-            Ranked by expected net profit impact
-          </span>
-        </div>
+      {/* List of Proactive Recommendations in 4 Simple Parts */}
+      <div className="space-y-6">
+        {insights.map((item, index) => {
+          const isItemSpeaking =
+            isSpeaking &&
+            (speakingText === item.speech_text ||
+              speakingText.includes(item.what_is_happening));
+          const isActivated = activatedSuccess === item.id;
 
-        <div className="space-y-4">
-          {priorities.map((item, index) => {
-            const Icon = item.icon;
-            const ActionIcon = item.actionIcon || ArrowRight;
-
-            return (
-              <div
-                key={item.id}
-                className="bg-white rounded-xl border border-slate-200 shadow-card p-6 hover:border-slate-300 transition-all"
-              >
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold font-mono">
-                      #{index + 1}
+          return (
+            <div
+              key={item.id || index}
+              className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-7 shadow-card hover:border-slate-300 transition-all"
+            >
+              {/* Card Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-blue-50 text-[#002970] flex items-center justify-center text-xs font-bold font-mono">
+                    #{index + 1}
+                  </span>
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      {item.category || 'Store Opportunity'}
                     </span>
-                    <Badge variant={item.badgeVariant}>{item.category}</Badge>
-                    <h4 className="text-base font-bold text-slate-900">{item.title}</h4>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {item.secondaryAction && (
-                      <button
-                        onClick={item.secondaryAction}
-                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1"
-                      >
-                        <Tag className="w-3.5 h-3.5 text-slate-500" />
-                        {item.secondaryActionLabel}
-                      </button>
-                    )}
-                    <button
-                      onClick={item.onAction}
-                      className="px-3.5 py-1.5 bg-[#002970] hover:bg-[#00225c] text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
-                    >
-                      <ActionIcon className="w-3.5 h-3.5 text-[#00b9f1]" />
-                      {item.actionLabel}
-                    </button>
+                    <h3 className="text-lg font-bold text-slate-900">{item.title}</h3>
                   </div>
                 </div>
 
-                {/* 4 Pillars: Insight, Why It Matters, Expected Impact, Next Action */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 text-xs">
-                  <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-100">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                      1. Insight
-                    </span>
-                    <p className="text-slate-700 leading-relaxed font-medium">
-                      {item.insight}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleListen(item)}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      isItemSpeaking
+                        ? 'bg-rose-50 text-rose-700 border border-rose-200 animate-pulse'
+                        : 'bg-slate-100 text-[#002970] hover:bg-slate-200'
+                    }`}
+                  >
+                    {isItemSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span>{isItemSpeaking ? t('stopSpeaking') : t('listen')}</span>
+                  </button>
 
-                  <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-100">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                      2. Why It Matters
-                    </span>
-                    <p className="text-slate-700 leading-relaxed">
-                      {item.whyItMatters}
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 rounded-lg bg-[#e6f7fc]/50 border border-[#bfe8f6]/60">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0083ca] block mb-1">
-                      3. Expected Impact
-                    </span>
-                    <p className="text-[#002970] leading-relaxed font-medium">
-                      {item.expectedImpact}
-                    </p>
-                  </div>
+                  <button
+                    onClick={() => handleActivateOffer(item)}
+                    disabled={activatingId === item.id || isActivated}
+                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-xl transition-all shadow-sm ${
+                      isActivated
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-[#002970] hover:bg-[#00225c] text-white'
+                    }`}
+                  >
+                    {isActivated ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                        <span>Activated!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3.5 h-3.5 text-[#00b9f1]" />
+                        <span>{t('activateOffer')}</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
-            );
-          })}
-        </div>
+
+              {/* 4 Pillars: WHAT IS HAPPENING / WHY IT MATTERS / WHAT SHOULD I DO / EXPECTED EXTRA PROFIT */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-5">
+                {/* 1. What is happening? */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                    {t('whatIsHappening')}
+                  </span>
+                  <p className="text-xs text-slate-800 leading-relaxed font-medium">
+                    {item.what_is_happening}
+                  </p>
+                </div>
+
+                {/* 2. Why does it matter? */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                    {t('whyDoesItMatter')}
+                  </span>
+                  <p className="text-xs text-slate-700 leading-relaxed">
+                    {item.why_it_matters}
+                  </p>
+                </div>
+
+                {/* 3. What should you do? */}
+                <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#002970] block mb-1">
+                    {t('whatShouldIDo')}
+                  </span>
+                  <p className="text-xs text-slate-800 leading-relaxed font-semibold">
+                    {item.what_to_do}
+                  </p>
+                </div>
+
+                {/* 4. Expected extra profit */}
+                <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block mb-1">
+                    {t('expectedExtraProfit')}
+                  </span>
+                  <p className="text-lg font-extrabold text-emerald-700">
+                    +{item.expected_extra_profit_display || '₹180/day'}
+                  </p>
+                  <p className="text-[11px] text-emerald-800 mt-0.5 font-medium">
+                    Extra cash earned while protecting your store profit margin
+                  </p>
+                </div>
+              </div>
+
+              {/* Suggested Offer Preview */}
+              {item.suggested_offer && (
+                <div className="mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-[#002970] shrink-0" />
+                    <span className="text-slate-500">Suggested Action:</span>
+                    <span className="font-bold text-slate-900">
+                      {item.suggested_offer.offer_title}
+                    </span>
+                    <span className="text-slate-400">•</span>
+                    <span className="text-slate-600">
+                      {item.suggested_offer.best_time}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => handleActivateOffer(item)}
+                    className="text-xs font-bold text-[#002970] hover:underline shrink-0"
+                  >
+                    Launch this offer now →
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

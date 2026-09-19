@@ -75,6 +75,30 @@ export const apiService = {
     return res.data;
   },
 
+  // Assistant Insights (4-part multi-lingual proactive recommendations)
+  getAssistantInsights: async (lang = 'en') => {
+    const res = await apiClient.get('/assistant/insights', { params: { lang } });
+    return res.data;
+  },
+
+  // Suggested Offers (ready to activate)
+  getSuggestedOffers: async (lang = 'en') => {
+    const res = await apiClient.get('/offers/suggested', { params: { lang } });
+    return res.data;
+  },
+
+  // Products needing attention (slow moving)
+  getProductsAttention: async () => {
+    const res = await apiClient.get('/analytics/products-attention');
+    return res.data;
+  },
+
+  // Likely Companion Items / Basket Associations
+  getBasketSuggestions: async () => {
+    const res = await apiClient.get('/analytics/basket-suggestions');
+    return res.data;
+  },
+
   // Mock Paytm Action
   triggerMockPaytmAction: async (actionData) => {
     const res = await apiClient.post('/mock-paytm/action', actionData);

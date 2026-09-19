@@ -1,68 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import ProactiveBusinessAlert from '../ProactiveBusinessAlert';
+import { useLanguage } from '../../context/LanguageContext';
+import apiService from '../../services/api';
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [topAlertInsight, setTopAlertInsight] = useState(null);
   const location = useLocation();
+  const { t, language } = useLanguage();
+
+  useEffect(() => {
+    async function loadAlertInsight() {
+      try {
+        const insights = await apiService.getAssistantInsights(language);
+        if (insights && insights.length > 0) {
+          setTopAlertInsight(insights[0]);
+        }
+      } catch (err) {
+        // Silent fallback
+      }
+    }
+    loadAlertInsight();
+  }, [language]);
 
   const getPageMeta = () => {
     switch (location.pathname) {
       case '/':
         return {
-          title: 'Merchant Dashboard',
-          subtitle: 'Real-time performance and proactive profit intelligence',
-        };
-      case '/opportunities':
-        return {
-          title: 'Growth Opportunities',
-          subtitle: 'Algorithmically detected revenue and traffic optimization windows',
-        };
-      case '/profitguard':
-        return {
-          title: 'ProfitGuard™ Margin Simulation',
-          subtitle: 'Verify profit preservation before launching discounts',
-        };
-      case '/network':
-        return {
-          title: 'Merchant Network Intelligence',
-          subtitle: 'Aggregated regional market signals and transaction distribution',
-        };
-      case '/products':
-        return {
-          title: 'Product Analytics',
-          subtitle: 'Performance, volume, and unit margins across catalog',
-        };
-      case '/customers':
-        return {
-          title: 'Customer Intelligence',
-          subtitle: 'Customer segment performance and repeat retention metrics',
-        };
-      case '/offers':
-        return {
-          title: 'Targeted Offers & Promotions',
-          subtitle: 'Configured merchant promotions and backend verification',
+          title: t('navYourShop'),
+          subtitle: t('todaysBusinessSub'),
         };
       case '/copilot':
         return {
-          title: 'Paytm Growth Copilot',
-          subtitle: 'Autonomous decision engine — "No Prompts. Just Profits."',
+          title: t('navWhatYouCanDo'),
+          subtitle: t('copilotSub'),
+        };
+      case '/products':
+        return {
+          title: t('navProducts'),
+          subtitle: t('productsNeedingAttentionSub'),
+        };
+      case '/offers':
+        return {
+          title: t('navOffers'),
+          subtitle: t('offersSub'),
+        };
+      case '/trends':
+      case '/network':
+        return {
+          title: t('navLocalTrends'),
+          subtitle: t('localTrendsSub'),
         };
       case '/settings':
         return {
-          title: 'Settings & Configuration',
-          subtitle: 'API endpoints, merchant profile, and system status',
+          title: t('navSettings'),
+          subtitle: 'Settings, language, and voice options',
         };
       case '/help':
         return {
-          title: 'Help & Documentation',
-          subtitle: 'System architecture, data provenance, and user guide',
+          title: t('navHelp'),
+          subtitle: 'Guide and explanations for your shop',
         };
       default:
         return {
-          title: 'Paytm Merchant Growth Copilot',
-          subtitle: 'No Prompts. Just Profits.',
+          title: t('appName'),
+          subtitle: t('tagline'),
         };
     }
   };
@@ -70,7 +75,7 @@ export default function Layout() {
   const meta = getPageMeta();
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-[#f8fafc] flex">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
@@ -86,10 +91,18 @@ export default function Layout() {
 
         <footer className="py-4 px-6 border-t border-slate-200 bg-white text-center text-xs text-slate-400">
           <p>
-            Paytm Merchant Growth Copilot • Public Kaggle retail proxy dataset (demo M001) • No Prompts. Just Profits.
+            {t('appName')} {t('appSubname')} • {t('shopName')} • "{t('tagline')}"
           </p>
         </footer>
       </div>
+
+      {/* Proactive Business Alert Pop-up */}
+      {topAlertInsight && (
+        <ProactiveBusinessAlert
+          insight={topAlertInsight}
+          onDismiss={() => setTopAlertInsight(null)}
+        />
+      )}
     </div>
   );
 }
